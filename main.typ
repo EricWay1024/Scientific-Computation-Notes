@@ -518,13 +518,25 @@ $
 where $c_k$ are normalising coefficients.
 
 Since $lambda_i < lambda_1$ for all $i = 2, dots, m$, $ (lambda_i / lambda_1)^k -> 0 $ as $k -> oo$. Thus $ bd(v)^((k)) -> c_k lambda_1^k a_1 bd(q)_1 $ as $k -> oo$. But $norm(bd(v)^((k))) = norm(bd(q)_1) = 1$, thus 
-$ bd(v)^((k)) -> bd(q)_1 $ as $k -> oo$, where $c_k lambda_1^k a_1 bd(q)_1 -> plus.minus bd(q)_1$ as $k -> oo$.
+$ bd(v)^((k)) -> plus.minus bd(q)_1 $ as $k -> oo$, where $c_k lambda_1^k a_1 bd(q)_1 -> plus.minus bd(q)_1$ as $k -> oo$.
 
 Also $ lambda^((k)) -> bd(q)_1^t A bd(q)_1 = lambda_1 bd(q)_1^t bd(q)_1 = lambda_1 $
 
 Power Rank: the dominant eigenvalue is $1$.
 
 == The power method: Convergence analysis
+
+#definition(name: "Rayleigh Quotient")[
+  Define Rayleigh quotient of vector $bd(x)$ as $ r(bd(x)) = (bd(x)^t A bd(x)) / (bd(x)^t bd(x)) $ 
+]
+
+#lemma[
+  $ nabla r =  vec(diff/(diff x_1), dots, diff / (diff x_m)) r(bd(x)) = 2 / (bd(x)^t bd(x)) (A bd(x) - r(bd(x)) bd(x)) $
+]
+
+#lemma[
+  $ r(bd(y)) = r(bd(x)) + nabla r dot.c  (bd(y) - bd(x)) + O(norm(bd(y)-bd(x))^2) $
+]
 
 #theorem[
   Suppose $|lambda_1| > |lambda_2| >= dots >= |lambda_m| >= 0 $ and $bd(q)_1^t bd(v)^((0)) != 0$. Then the power method converges and $ 
@@ -538,12 +550,34 @@ Power Rank: the dominant eigenvalue is $1$.
 
  #proof[
    $ norm(bd(v)^((k)) -  c_k lambda_1^k a_1 bd(q)_1) = norm(c_k lambda_1^k sum_(i=2)^m a_i (lambda_i / lambda_1)^k) -> O(abs((lambda_2) / (lambda_1))^k) $
+  as $k -> oo$.
 
-   Define Rayleigh quotient $ r(bd(x)) = (bd(x)^t A bd(x)) / (bd(x)^t bd(x)) $ and we have $r(bd(q)_1) = lambda_1$. Also notice that $r(bd(v)^((k))) = lambda^((k))$. Further $
-     
-   $. Thus 
+
+   By definition,
+   $r(bd(q)_1) = lambda_1 $ and $r(bd(v)^((k))) = lambda^((k))$. Thus 
    $
-     lambda^((k)) - lambda_1 
+     lambda^((k)) - lambda_1 = r(bd(v)^((k)))  - r(bd(q)_1) = nabla r (bd(q)_1)(bd(v)^((k)) - bd(q)_1)  + O(norm(bd(v)^((k)) - bd(q)_1)^2)
    $
- 
+
+   But $nabla r (bd(q)_1) = 0$. Thus 
+   $ |lambda^((k)) - lambda_1|  &= O(abs((lambda_2) / (lambda_1))^(2k)) $
+]
+
+== Inverse iteration
+
+Motivation. Let $lambda$ and $bd(v)$ be a pair of eigenvalue and eigenvector of matrix $A$, then $ A bd(v) = lambda bd(v) $ Then sice $ lambda^(-1) bd(v) = A^(-1) bd(v) $ we see that $lambda^(-1)$ is an eigenvalue of $A^(-1)$ for the same eigenvector $bd(v)$. To find the eigenvalue with the smallest absolute value of $A$, we only need to find the one with the largest absolute value for $A^(-1)$. Also since for $mu != lambda$,
+$ (A - mu I) bd(v) &= (lambda - mu) bd(v) \
+  1/(lambda - mu) bd(v) &= (A - mu I)^(-1) bd(v)
+$
+To find the eigenvalue of $A$ closest to $mu$, we only need to find the eigenvalue with the largest absolute value of $B = (A - mu I)^(-1)$.
+
+We solve a linear system instead of actually computing the inverse matrix.
+
+#theorem[
+  Suppose $lambda_J$ and $lambda_K$ are the closest and second closest eigenvalue of $A$ to $mu$ and $bd(q)_J^t bd(v)^((0)) != 0$. Then the inverse iteration method converges, with 
+  $ norm(bd(v)^((0)) - bd(q)_J^t) &= O(abs( (mu - lambda_J) / (mu - lambda_K) )^k) \
+
+  abs(lambda^((k)) - lambda_J) &= O(abs( (mu - lambda_J) / (mu - lambda_K) )^(2k))
+  
+   $
 ]
