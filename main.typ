@@ -581,3 +581,24 @@ We solve a linear system instead of actually computing the inverse matrix.
   
    $
 ]
+
+== Simultaneous iteration
+
+Unnormalised version. Suppose $A in RR^(m times m)$, where $m >= n$. Take $ V^((0)) = mat( bd(v)_1^((0)), dots, bd(v)_n^((0)); ) $ where $bd(v)_i in RR^m$. For $k = 1, 2, dots$, $ V^((k)) = A V^((k-1)) = mat(A bd(v)_1^((k-1)), dots, A bd(v)_n^((k-1))  ; ) $
+
+With QR factorisation of $V^((k))$, we expect that $Q^((k)) -> mat(bd(q)_1, dots, bd(q)_n; )$ where $ Q^((k)) R^((k)) = V^((k)) $ and $ Q^((k)) in RR^(m times n)$.
+
+Normalised version. Pick $Q^((0)) in RR^(m times n)$ with orthonormal columns. For $k = 1, 2, dots$, 
+$ Z&= A Q^((k-1)) \ Q^((k)) R^((k)) &= Z $ (reduced QR factorisation of $Z$)
+
+#theorem[
+  Suppose $|lambda_1| > |lambda_2| > dots > |lambda_n| > |lambda_(n+1)| >= dots >= |lambda_m|$ and all leading principal submatrices of $Q^T V^((0))$ are nonsingular with $Q=mat(bd(q)_1, dots, bd(q)_n; )$. Then 
+  $ Q^((k)) -> Q $ linearly with $ norm(bd(q)_j^((k)) - (plus.minus bd(q)_j)) = O(alpha^k) $ where $alpha = max_(1<=k<=n) (lambda_(k+1)) / (lambda_k)$.
+]
+
+= Low-Rank Approximation II: The SVD, and Matrix Approximation
+
+Suppose $A in RR^(n times n)$ with $n$ linearly independent eigenvalues. Then $ A = X Lambda X^(-1) $ where each column $bd(x)_i$ of $X$ is an eigenvector of $A$ and $lambda_i$ is the corresponding eigenvalue.
+
+The spectral theorem. Suppose $A in RR^(n times n)$ is symmetric, then $ A = Q Lambda Q^t $ where $lambda_i in RR$ and $Q^(-1) = Q^t$.
+
