@@ -666,13 +666,30 @@ Hence by computing the eigenvalues and eigenvectors of $H$ we can get the SVD of
   for any $1 <= k <= r$. 
 ]
 
-#theorem[
+#theorem(name: "The Eckart-Young Theorem")[
   $ norm(A-A_k) = min_(B in RR^(m times n), "rank" B <= k) norm(A - B) $
   where $norm(dot)$ is either $ norm(A)_2 = max_(bd(x)) (norm(A bd(x))_2 / norm(bd(x))_2) $ or 
   the Frobenius norm $ norm(A)_F = sqrt(sum_(i=1)^m sum_(j=1)^n |a_(i j)|^2) $
   Further, $ norm(A - A_k)_2 = sigma_(k+1) $ and $ norm(A - A_k)_F = sqrt(sum_(i=k+1)^n sigma_i^2) $
 ]
 
+#proof[
+  First we show that $norm(A - A_k)_2 = sigma_(k+1)$. (TODO: See end of lecture notes 8).
+
+  Assume that there exists $B in RR^(m times n)$ with $"rank" B <= k$ such that $ norm(A-B)_2 < norm(A - A_k)_2 = sigma_(k+1) $
+
+  There exists $W_1 subset RR^n$ such that $dim W_1 = n - k$ and 
+  $B bd(w)_1 = bd(0)$
+  for all $bd(w)_1 in W_1$, since $"rank" B <= k$. 
+  Then 
+  $ 
+  norm(A bd(w)_1)_2 = norm((A-B)bd(w)_1)_2 <= norm(A-B)_2 norm(bd(w)_1)_2 < sigma_(k+1) norm(bd(w)_1)_2
+  $
+
+  There exists $W_2 subset RR^n$ such that $W_2 = "span" {bd(v)_1, dots, bd(v)_(k+1)}$ and $dim W_2 = k + 1$. Then $ norm(A bd(w)_2)_2 >= sigma_(k+1) norm(bd(w)_2)_2 $
+
+  Then $dim (W_1 sect W_2) >= 1$ and for $w in W_1 sect W_2$ we have both $norm(A bd(w))_2 < sigma_(k+1) norm(bd(w))_2$ and $norm(A bd(w))_2 >= sigma_(k+1) norm(bd(w))_2$, which is a contradiction.
+]
 
 
 // #proof[
