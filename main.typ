@@ -1,4 +1,5 @@
 #import "template.typ": *
+#import "theorem.typ": *
 #set heading(numbering: "1.a.")
 #let lebs = [ $L^2(Omega)$ ]
 #let into = [ $integral_Omega$ ]
@@ -6,15 +7,46 @@
 
 #let bd(term) = [ $bold(#term)$]
 
-#let thm = counter("theorem")
-#let theorem(term, name: "", type: "Theorem") = block(fill: luma(240), inset: 6pt, width: 100%, radius: 2pt)[
-  *#type #thm.display()*#if name == "" {} else {[ (#name)]}. #thm.step() #term 
-]
-#let corollary(term, name: "") = theorem(name: name, type: "Corollary")[#term]
-#let lemma(term, name: "") = theorem(name: name, type: "Lemma")[#term]
-#let example(term, name: "") = theorem(name: name, type: "Example")[#term]
-#let definition(term, name: "") = theorem(name: name, type: "Definition")[#term]
-// #let proof(term) = block[_Proof._ #term #align(right)[$qed$]]
+#let theorem = thmbox(
+  "theorem",
+  "Theorem",
+  fill: rgb("#e8e8f8"),
+)
+
+#let lemma = thmbox(
+  "theorem",
+  "Lemma",
+  fill: rgb("#e8e8f8"),
+)
+
+#let definition = thmbox(
+  "theorem",
+  "Definition",
+  fill: rgb("#e8f8e8"),
+)
+
+#let example = thmbox(
+  "theorem",
+  "Example",
+  stroke: rgb("#ffaaaa") + 1pt,
+)
+
+#let corollary = thmbox(
+  "theorem",
+  "Corollary",
+  fill: rgb("#e8e8f8"),
+)
+
+// #let thm = counter("theorem")
+// #let theorem(term, name: "", type: "Theorem") = block(fill: luma(240), inset: 6pt, width: 100%, radius: 2pt)[
+//   *#type #thm.display()*#if name == "" {} else {[ (#name)]}. #thm.step() #term 
+// ]
+// #let corollary(term, name: "") = theorem(name: name, type: "Corollary")[#term]
+// #let lemma(term, name: "") = theorem(name: name, type: "Lemma")[#term]
+// #let example(term, name: "") = theorem(name: name, type: "Example")[#term]
+// #let definition(term, name: "") = theorem(name: name, type: "Definition")[#term]
+
+
 #let proof(term) = block(width: 100%)[_Proof._ #term #h(1fr) $qed$]
 
 
@@ -158,15 +190,6 @@ $
 
 = FEM for PDEs II
 
-== Well-posedness
-
-#definition(name: "Well-posedness")[ A PDE problem is _well-posed_ if
-- A unique solution exists. 
-- Continuous dependence (small changes in the problem lead to small changes in the solution).]
-
-
-Main idea: if the weak form is well-posed (by L-M Theorem) and the data is regular, then the strong form is also well-posed and the solution to the weak form also solves the strong form.
-
 
 == Hilbert space
 
@@ -180,7 +203,15 @@ An inner product space is written as $V, (dot.c, dot.c)_V$ where $V$ is a linear
 
 #example(name: $L^2(Omega)$)[$(f, g) = integral_Omega f g  dif x$ and $|| f || _(L^2(Omega)) = sqrt(integral_Omega f^2 dif x)$.]
 
-== Lax-Milgram Theorem 
+== Well-posedness
+
+#definition(name: "Well-posedness")[ A PDE problem is _well-posed_ if
+- A unique solution exists. 
+- Continuous dependence (small changes in the problem lead to small changes in the solution).]
+
+
+Main idea: if the weak form is well-posed (by L-M Theorem) and the data is regular, then the strong form is also well-posed and the solution to the weak form also solves the strong form.
+
 
 #theorem(name: "Lax-Milgram Theorem")[Let $V$ be a Hilbert space, $b(dot.c, dot.c)$ a bi-linear form on $V times V$, and $l(dot.c)$ a linear functional on $V$. Assume: 
 
@@ -196,7 +227,7 @@ Then the following problem has a unique solution (with continuous dependence):
 - Find $u in V$ such that $b(u, v) = l(v)$ for all $v in V$.]
 
 
-== Poincare-Friedrichs inequality
+// == Poincare-Friedrichs inequality
 
 
 #theorem(name: "Poincare-Friedrichs inequality")[
@@ -213,7 +244,7 @@ For all $w in H_0^1(Omega)$, there exists $c_"PF" > 0$ such that $ || w ||_(L^2(
   Taking the square root yields the result.
 ]
 
-== Main example
+// == Main example
 
 #example(name: "Weak form")[ Given $f in L^2(Omega)$. Find $u in H_1^0(Omega)$ such that 
 $ integral_0^1 u' v' dif x = integral_0 ^1 f v dif x  $
@@ -241,7 +272,7 @@ Here $b(u, v) = integral_0^1 u' v' dif x$ and $l(v) = integral_0 ^1 f v dif x$. 
 By Lax-Milgram Theorem, the problem is well-posed.
 ]
 
-== Intermezzo
+== Weak derivative
 
 $ C^oo(Omega) = {phi.alt: Omega -> RR |  phi.alt, phi.alt', phi.alt'', dots "are continuous"} $ 
 
@@ -346,7 +377,7 @@ The corollary implies that as $h -> 0$, $u_h -> u$ and the order of convergence 
 == Poisson problem 
 #definition(name: "Laplacian")[$ Delta = nabla dot.c nabla = diff^2/(diff^2 x) + diff^2/(diff^2 y) = (dot.c)_(x x) + (dot.c)_(y y) $]
 
-Let $Omega in RR^2$ be an open subset.
+Let $Omega subset RR^2$ be an open subset.
 
 #definition[
 $ #lebs &= { v: Omega -> RR | norm(v)_#lebs < oo } \
@@ -413,7 +444,7 @@ Given $f$, find $u in H_0^1(Omega)$ such that for all $v in H_0^1(Omega)$, $ int
 
 Given $A in RR ^ (n times n), bold(b) in RR^n$. Assume there exists $bold(x) in RR^n$ such that $A bold(x) = bold(b)$. Given $hat(bold(x))$, an approximation to $bold(x)$, estimate the upper bound for the error $norm(bold(x) - bold(hat(x)))$. 
 
-Main idea: use $bold(r) = bold(b) - A bold(hat(x))$ and $norm(bold(r))$.
+Main idea: use $bold(hat(r)) = bold(b) - A bold(hat(x))$ and $norm(bold(hat(r)))$.
 
 == Vector norms and matrix norms
 
@@ -451,38 +482,48 @@ Main idea: use $bold(r) = bold(b) - A bold(hat(x))$ and $norm(bold(r))$.
 ]
 
 #theorem[ For a vector norm and its induced matrix norm, 
-  $ norm(A bd(x)) <= norm(A) norm(bd(x)) $
+  $ norm(A bd(x)) <= norm(A) norm(bd(x)) $ <matrix-norm>
+]
+
+#proof[
+  This follows directly from the definition of induced matrix norm. 
 ]
 #definition[
   For a square matrix $A$,
   $ kappa(A)=norm(A) norm(A^(-1)) $ is the _condition number_ of $A$.
 ]
 
-#theorem[
-  (i).
-  $ norm(bd(x) - bd(hat(x))) <= norm(A^(-1)) norm(hat(bd(r))) $ 
-  (ii). For any $bd(x) != bd(0)$,
-  $ norm(bd(x) - bd(hat(x))) / norm(bd(x)) <= kappa(A) norm(bd(hat(r))) / norm(bd(b)) $
+Let $A, bd(b), bd(x), bd(hat(x))$ be such that $A bd(x) = bd(b)$ and $bold(hat(r)) = bold(b) - A bold(hat(x))$.
+#theorem(name: "Absolute error estimate")[
+    $ norm(bd(x) - bd(hat(x))) <= norm(A^(-1)) norm(hat(bd(r))) $ <error-1>
 ]
 
 #proof[
-  (i).
   $ 
     norm(bd(x) - bd(hat(x))) 
     &= norm(A^(-1)bd(b) - bd(hat(x))) \
+    &= norm(A^(-1)(bd(b) - A bd(hat(x)))) \
     &= norm(A^(-1) hat(bd(r))) \
     &<= norm(A^(-1)) norm(hat(bd(r)))
   $
-  (ii).
+  The last inequality is due to #thmref(<matrix-norm>)[Theorem].
+]
+#theorem(name: "Relative error estimate")[
+  For any $bd(x) != bd(0)$,
+  $ norm(bd(x) - bd(hat(x))) / norm(bd(x)) <= kappa(A) norm(bd(hat(r))) / norm(bd(b)) $
+  <error-2>
+]
+
+#proof[
+  By #thmref(<matrix-norm>)[Theorem],
   $
     norm(bd(b)) = norm(A bd(x)) <= norm(A) norm(bd(x))
   $
-  Thus 
+  Thus for $bd(x) != bd(0)$,
   $
     1 / norm(bd(x)) <= norm(A) / norm(bd(b))
   $
-  for any $bd(x) != bd(0)$.
-  Thus
+  Then by #thmref(<error-1>)[Theorem],
   $
     norm(bd(x) - bd(hat(x))) / norm(bd(x)) <=norm(A) norm(A^(-1)) norm(bd(hat(r))) / norm(bd(b))  = kappa(A) norm(bd(hat(r))) / norm(bd(b))
   $
@@ -491,7 +532,7 @@ Main idea: use $bold(r) = bold(b) - A bold(hat(x))$ and $norm(bold(r))$.
 
 
 #lemma[
-  For a symmetric matrix $A in RR^(n times n)$, the eigenvalues are real and we can choose a set of orthonormal eigenvectors that span $RR^n$.
+  For a symmetric matrix $A in RR^(n times n)$, the eigenvalues are real and we can choose a set of orthonormal eigenvectors that span $RR^n$. <symmetric-eigen>
 ]
 
 #definition[
@@ -499,22 +540,22 @@ Main idea: use $bold(r) = bold(b) - A bold(hat(x))$ and $norm(bold(r))$.
 ]
 
 #lemma[
-  The eigenvalues of a positive definite matrix are positive. 
+  The eigenvalues of a positive definite matrix are positive. <pd-eigenvalue> 
 ]
 #definition[
   For a square matrix $A$,
   $rho(A) = max_k | lambda_k |$ where $lambda_k$ are eigenvalues of $A$.
 ]
-#theorem[
+#theorem[For a non-singular square matrix $A$,
   $
     norm(A)_2 = sqrt( rho (A^t A))
   $
 ]
 
 #proof[
-  $A^t A$ is symmetric and positive definite. Thus the eigenvalues $mu_j$ of $A^t A$ are positive and we can choose a set of orthonormal eigenvectors $bd(w)_j$ that span $RR ^ n$, where 
-  $ A^t A bd(w)_j  = mu_j bd(w)_j $
-  and $bd(w)_j dot.c bd(w)_k = delta_(j k)$. For any $bd(x) in RR^n$, $bd(x) = sum_(j=1)^n x_j bd(w)_j$ for some $x_j$.
+  $A^t A$ is clearly symmetric. $A^t A$ is also positive definite because for any $bd(x) != bd(0)$, $bd(x)^t (A^t A) bd(x) = norm(A bd(x))^2_2 > 0$ since $A$ is non-singular. By #thmref(<pd-eigenvalue>)[Lemma], the eigenvalues $mu_j$ of $A^t A$ are positive. By #thmref(<symmetric-eigen>)[Lemma], we can choose a set of orthonormal eigenvectors $bd(w)_j$ that span $RR ^ n$. Namely, for all $j, k = 1 , dots , N$,
+  $ A^t A bd(w)_j  &= mu_j bd(w)_j \
+   bd(w)_j dot.c bd(w)_k &= delta_(j k) $ and for all $bd(x) in RR^n$, there exist $x_1, dots, x_n$ such that $bd(x) = sum_(j=1)^n x_j bd(w)_j$.
 
   Then $ norm(A)_2^2 &= max_(norm(bd(x)) = 1) bd(x)^t A^t A bd(x) \
   &= max_(norm(bd(x)) = 1) (sum_(i=1)^n x_i bd(w)^t_i) A^t A (sum_(j=1)^n x_j bd(w)_j) \
@@ -524,16 +565,37 @@ Main idea: use $bold(r) = bold(b) - A bold(hat(x))$ and $norm(bold(r))$.
   &<= max_(norm(bd(x)) = 1) sum_(i=1)^n x_i^2 max_j |mu_j| \
   &= max_j |mu_j|
   $ 
+
+  If $k = "argmax"_j|mu_j|$, then the maximum is obtained when $x_i = delta_(i, k)$. This proves the result.
 ]
 
 #theorem(name: "Perturbation Theorem")[
   Let $A bd(x) = bd(b)$ and $(A + delta A) hat(bd(x)) = bd(b) + delta bd(b)$, where $delta A$ and $delta bd(b)$ are perturbations. Then 
-  $ norm(bd(x) - hat(bd(x))) / norm(bd(x))) <= C (norm(delta bd(b)) / norm(bd(b)) + norm(delta A) / norm(A) ) $
+  $ norm(bd(x) - hat(bd(x))) / norm(bd(x)) <= C (norm(delta bd(b)) / norm(bd(b)) + norm(delta A) / norm(A) ) $
   where small $delta A$ is assumed: $norm(delta A) < 1/norm(A^(-1))$.
 ]
 
 #proof[
-  TODO
+  From $A bd(x) = bd(b)$ and $(A + delta A) hat(bd(x)) = bd(b) + delta bd(b)$ we can deduce that 
+  $
+    A(bd(x) - bd(hat(x))) = - delta bd(b) + delta A bd(hat(x)) = - delta bd(b) + delta A bd(x) - delta A (bd(x) - bd(hat(x)))
+  $
+  Thus $bd(x) - bd(hat(x)) = A^(-1)(- delta bd(b) + delta A bd(x) - delta A (bd(x) - bd(hat(x))))$ and by triangle inequality and #thmref(<matrix-norm>)[Theorem],
+  $
+    norm(bd(x) - bd(hat(x))) <= norm(A^(-1)) (norm(delta bd(b)) + norm(delta A) norm(bd(x)) + norm(delta A) norm(bd(x) - bd(hat(x))))
+  $
+  From $1/norm(bd(x)) <= norm(A) / norm(bd(b))$ and $kappa(A) = norm(A) norm(A^(-1)) $ we deduce that 
+  $
+    norm(bd(x) - hat(bd(x))) / norm(bd(x)) <= kappa(A) (norm(delta bd(b)) / norm(bd(b)) + norm(delta A) / norm(A) + norm(delta A) / norm(A) norm(bd(x) - hat(bd(x))) / norm(bd(x)))
+  $
+  Thus 
+  $
+    (1 - kappa(A) norm(delta A) / norm(A)) norm(bd(x) - hat(bd(x))) / norm(bd(x)) &<= kappa(A) (norm(delta bd(b)) / norm(bd(b)) + norm(delta A) / norm(A)) $
+  When $norm(delta A) < 1/norm(A^(-1))$, we have that $1 - kappa(A) norm(delta A) / norm(A) > 0$ and thus
+  $
+    norm(bd(x) - hat(bd(x))) / norm(bd(x)) &<= kappa(A) / (1 - kappa(A) norm(delta A) / norm(A)) (norm(delta bd(b)) / norm(bd(b)) + norm(delta A) / norm(A))
+  $
+  This proves the result.
 ]
 
 = Linear Systems: Advanced Methods II
