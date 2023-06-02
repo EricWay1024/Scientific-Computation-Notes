@@ -28,27 +28,34 @@
   date: "March 23, 2023",
 )
 
+#outline(indent: true)
+
+#pagebreak()
+
 = FEM for PDEs I
 
-== Problem statement (strong form)
+== Problem statement
 
-Define $Omega = [0, 1]$. Given $f : Omega -> RR$, find $u : Omega -> RR$ such that 
-$ cases(-u'' = f, u(0) = 0, u(1) = 0) $
+Let $Omega subset RR$ be a closed interval. We take $Omega =  [0, 1]$ as an example. 
 
-This is a two-point boundary value problem. 
+#definition[
+  Define the _Sobolev spaces_
+  $ H^1(Omega) = {v : Omega -> RR | v, v' in L^2 (Omega)} $
+  $ H_0^1(Omega) = { v in H^1(Omega) | v(0) = v(1) = 0} $
 
-== Problem statement (weak form)
+  where $L^2(Omega)$ is the Lebesgue space. 
+]
 
-Define the Sobolev spaces 
-$ H^1(Omega) = {v : Omega -> RR | v, v' in L^2 (Omega)} $
-$ H_0^1(Omega) = { v in H^1(Omega) | v(0) = v(1) = 0} $
+#definition(name: "Two-Point Boundary Value Problem, Strong Form")[Given $f : Omega -> RR$, the _strong form_ of a _two-point boundary value problem_ is to find $u : Omega -> RR$ such that 
+$ cases(-u'' = f, u(0) = 0, u(1) = 0) $]
 
-where $L^2(Omega)$ is the Lebesgue space. 
 
-Find $u in H_1^0(Omega)$ such that 
+
+#definition(name: "Two-Point Boundary Value Problem, Weak Form")[
+The _weak form_ of the problem is to find $u in H_1^0(Omega)$ such that 
 $ integral_0^1 u' v' dif x = integral_0 ^1 f v dif x  $
 for any $v in H_0^1(Omega)$.
-
+]
 
 
 == Deriving weak form from strong form
@@ -633,7 +640,7 @@ We see that unitary matrices are a generalisation of orthogonal matrices.
 Consider matrix $A in RR^(m times n)$. Then a _singular value decomposition_ of $A$ is
 $ A = U Sigma V^t $
 where
- $U in RR^(m times n)$ is a unitary matrices, $Sigma in RR^(n times n)$ is a diagonal matrix 
+ $U in RR^(m times n)$ is a unitary matrix, $Sigma in RR^(n times n)$ is a diagonal matrix 
 with non-negative entries, and $V in RR^(n times n)$  is an orthogonal matrix.
 ]
 
