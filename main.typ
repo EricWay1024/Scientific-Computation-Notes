@@ -40,39 +40,54 @@ Let $Omega subset RR$ be a closed interval. We take $Omega =  [0, 1]$ as an exam
 
 #definition[
   Define the _Sobolev spaces_
-  $ H^1(Omega) = {v : Omega -> RR | v, v' in L^2 (Omega)} $
-  $ H_0^1(Omega) = { v in H^1(Omega) | v(0) = v(1) = 0} $
+  $ H^1(Omega) &= {v : Omega -> RR | v, v' in L^2 (Omega)} \
+   H_0^1(Omega) &= { v in H^1(Omega) | v(0) = v(1) = 0} \
+   H_(\(0)^1(Omega) &= { v in H^1(Omega) | v(0) = 0} \
+   H_(0\))^1(Omega) &= { v in H^1(Omega) | v(1) = 0} $
+
 
   where $L^2(Omega)$ is the Lebesgue space. 
 ]
 
-#definition(name: "Two-Point Boundary Value Problem, Strong Form")[Given $f : Omega -> RR$, the _strong form_ of a _two-point boundary value problem_ is to find $u : Omega -> RR$ such that 
+#definition(name: "Two-point boundary value problem, strong form")[Given $f : Omega -> RR$, the _strong form_ of a _two-point boundary value problem_ is to find $u : Omega -> RR$ such that 
 $ cases(-u'' = f, u(0) = 0, u(1) = 0) $]
 
 
-
-#definition(name: "Two-Point Boundary Value Problem, Weak Form")[
-The _weak form_ of the problem is to find $u in H_1^0(Omega)$ such that 
+#definition(name: "Two-point boundary value problem, weak form")[
+Given $f : Omega -> RR$, the _weak form_ of a _two-point boundary value problem_ is to find $u in H_1^0(Omega)$ such that 
 $ integral_0^1 u' v' dif x = integral_0 ^1 f v dif x  $
 for any $v in H_0^1(Omega)$.
 ]
 
+#theorem[
+  Any solution $u in H_1^0(Omega)$ to the strong form also solves the weak form.
+]
 
-== Deriving weak form from strong form
-
-Let $u$ solve the strong form. Then take any $v in H_0^1(Omega)$, we have $ -u'' v = f v $ Integrate over $Omega$ and use the boundary conditions to obtain 
+#proof[
+  Let $u$ solve the strong form. Then take any $v in H_0^1(Omega)$, we have $ -u'' v = f v $ Integrate over $Omega$ and use the boundary conditions to obtain 
 $ integral_0^1 u' v' dif x = integral_0 ^1 f v dif x  $
+Thus $u$ also solves the weak form.
+]
+
 
 == Petrov-Galerkin discretization
 
+#definition(name: "Abstract weak form")[
+  Let $U, V$ be function spaces. Given $b$ and $l$,
+ find $u in U$ such that $ b(u, v) = l(v) $ for any $v in V$.
+]
 
-Abstract weak form. Find $u in U$ such that $ b(u, v) = l(v) $ for any $v in V$.
+#definition(name: "Petrov-Galerkin discretization")[
+Given discrete subspaces $U_h subset U$ and $V_h subset V$ with $dim U_h = dim V_h$, find $u_h in U_h$ such that $ b(u_h, v_h) = l(v_h) $ for any $v_h in V_h$. 
 
-Given discrete subspaces $U_h subset U$ and $V_h subset V$ with $dim U_h = dim V_h$, find $u_h in U_h$ such that $ b(u_h, v_h) = l(v_h) $ for any $v_h in V_h$.
+This method is called _Petrov-Galerkin discretization_ and specially, when $U_h = V_h$, _Galerkin discretization_.
+]
 
-This method is called _Galerkin discretization_ when $U_h = V_h$.
+#definition(name: "Finite element mesh")[
+A _finite element mesh_ is a partition of $Omega$ into non-overlapping subsets. 
+]
 
-A _finite element mesh_ is a partition of $Omega$ into non-overlapping subsets. $U_h$ and $V_h$ are the span of basis functions which are defined with respect to a finite element mesh. 
+In Petrov-Galerkin discretization, $U_h$ and $V_h$ are the span of basis functions which are defined with respect to a finite element mesh. 
 
 For example, let $U_h = "span"{x, x^2}$ and $V_h = "span"{1, x}$. Then $u_h = u_1 x + u_2 x^2$ where $u_1, u_2$ are to be determined. Setting $v_h(x) = 1$ and $v_h(x) = x$ gives two equations for $u_1$ and $u_2$. We then compute $u_1$ and $u_2$ to obtain $u_h(x)$. 
 
@@ -80,15 +95,49 @@ For example, let $U_h = "span"{x, x^2}$ and $V_h = "span"{1, x}$. Then $u_h = u_
 
 Consider $Omega subset RR$ with finite element mesh $ {(x_0, x_1), (x_1, x_2), dots, (x_(N-1), x_N)} $
 
-Define 'hat' basis function $ phi _j (x_i) = cases(1 quad "if " i = j, 0 quad "if " i != j) $
+#definition(name: "'Hat' basis function")[
+  Define _'hat' basis function_, where for $j = 0, 1, dots, N$, $ phi _j (x_i) = cases(1 quad "if " i = j, 0 quad "if " i != j) $
+  and $phi_j$ is linearly interpolated elsewhere.
+]
 
-Then $U_h = "span"{ phi_j } _(j = 1) ^ N$.
 
-Also define $ psi_i(x) = cases(1 quad "if " x in (x_(i-1), x_i), 0 quad "otherwise") $
+#definition[
+  Define for $i = 1, dots, N$, $ psi_i(x) = cases(1 quad "if " x in (x_(i-1), x_i), 0 quad "otherwise") $
+]
 
-Then $V_h = "span"{ psi_i } _(i = 1) ^ N $. 
+Then $U_h = "span"{ phi_j } _(j = 1) ^ N$ is the space of continuous piecewise linear polynomials, and $V_h = "span"{ psi_i } _(i = 1) ^ N $ is the space of discontinuous piecewise constant polynomials. 
 
-Then the problem can be changed to solving an algebraic system $A bold(u) = bold(b)$, where $ A = mat(
+
+#example[
+  Given $f$, find $u$ such that $u' = f$ for $x in (0, 1)$ and $u(0) = 0$.
+]
+
+#proof[
+  Multiply $v$ on both sides of $u' = f$ and integrate over $[0, 1]$, we see that 
+  $ integral_0^1  f v dx = integral_0^1 u' v dx =  [u v ]_0^1 - integral_0^1 u v' dx $
+
+  We now derive two weak forms.
+
+  #list(
+    block(width: 100%)[  A weak form where no $v'$ appear: find $u in H_(\(0)^1(Omega)$ such that $ integral_0^1  f v dx = integral_0^1 u' v dx $ for any $v in L^2(Omega)$.],
+    [  A weak form where no $u'$ appear: find $u in lebs$ such that $ integral_0^1  f v dx =  - integral_0^1 u v' dx  $ for any $v in  H_(0\))^1(Omega)$.]
+  )
+  We now apply Petrov-Galerkin discretization to the first weak form: find $u_h in U_h subset U = H_(\(0)^1$ such that 
+  $ integral_0^1  f v_h dx = integral_0^1 u_h' v_h dx $
+  for any $v_h in V_h subset V = lebs$.
+
+  With a finite element mesh of $N$ intervals, we define $U_h = "span"{phi_j : j = 1, 2, dots, N}$. Note that $phi_0$ is not included since $u(0) = 0$. Thus $ u_h = sum_(j=1)^N u_j phi_j(x) $ for $u_j in RR$, $j = 1, dots, N$. We pick $v_h = psi_i$ for $i = 1, dots, N$.
+
+  
+
+  We now need to find $bd(u) = vec(u_1, dots, u_N) in RR^N$ such that 
+  $ sum_(j=1)^N u_j integral_0^1 phi_j'(x) psi_i(x) dx = integral_0^1 f(x) psi_i(x) dx $
+
+  Define $A in RR^(N times N)$ where $ A_(i, j) = integral_0^1 phi_j'(x) psi_i(x) dx = cases(1 &"if " i = j, -1  &"if " i = j + 1, 0 &"otherwise") $ and $bd(b) in RR^n$ where 
+
+  $ b_i = integral_0^1 f(x) psi_i(x) dx = integral_(x_(i-1))^(x_i) f(x) dx $
+
+  Then the problem can be reduced to solving an algebraic system $A bold(u) = bold(b)$, where $ A = mat(
   1, 0, 0, ..., 0; 
   -1, 1, 0, ..., 0;
   0, -1, 1, ..., 0;
@@ -103,10 +152,9 @@ and $ bold(b) =  vec(
   integral_(x_(N-1)) ^ (x_N) f(x) dif x,
 )
 $
+]
 
 = FEM for PDEs II
-
-
 
 == Well-posedness
 
