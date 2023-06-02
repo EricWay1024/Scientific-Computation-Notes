@@ -3,6 +3,7 @@
 #let lebs = [ $L^2(Omega)$ ]
 #let into = [ $integral_Omega$ ]
 #let dx = [ $dif x$ ]
+
 #let bd(term) = [ $bold(#term)$]
 
 #let thm = counter("theorem")
@@ -105,7 +106,7 @@ Consider $Omega subset RR$ with finite element mesh $ {(x_0, x_1), (x_1, x_2), d
   Define for $i = 1, dots, N$, $ psi_i(x) = cases(1 quad "if " x in (x_(i-1), x_i), 0 quad "otherwise") $
 ]
 
-Then $U_h = "span"{ phi_j } _(j = 1) ^ N$ is the space of continuous piecewise linear polynomials, and $V_h = "span"{ psi_i } _(i = 1) ^ N $ is the space of discontinuous piecewise constant polynomials. 
+Then $U_h = "span"{ phi_j } _(j = 0) ^ N$ is the space of continuous piecewise linear polynomials, and $V_h = "span"{ psi_i } _(i = 1) ^ N $ is the space of discontinuous piecewise constant polynomials. 
 
 
 #example[
@@ -126,7 +127,7 @@ Then $U_h = "span"{ phi_j } _(j = 1) ^ N$ is the space of continuous piecewise l
   $ integral_0^1  f v_h dx = integral_0^1 u_h' v_h dx $
   for any $v_h in V_h subset V = lebs$.
 
-  With a finite element mesh of $N$ intervals, we define $U_h = "span"{phi_j : j = 1, 2, dots, N}$. Note that $phi_0$ is not included since $u(0) = 0$. Thus $ u_h = sum_(j=1)^N u_j phi_j(x) $ for $u_j in RR$, $j = 1, dots, N$. We pick $v_h = psi_i$ for $i = 1, dots, N$.
+  With a finite element mesh of $N$ intervals, we define $U_h = "span"{phi_j : j = 1, 2, dots, N}$. Note that $phi_0$ is not included since $u(0) = 0$. Thus $ u_h = sum_(j=1)^N u_j phi_j(x) $ for $u_j in RR$, $j = 1, dots, N$. We define $V_h = "span"{psi_i : i = 1, dots, N}$ and pick $v_h = psi_i$ for $i = 1, dots, N$.
 
   
 
@@ -144,8 +145,7 @@ Then $U_h = "span"{ phi_j } _(j = 1) ^ N$ is the space of continuous piecewise l
   0, 0, -1, ..., 0;
   dots.v, dots.v, dots.v, dots.down, dots.v;
   0, 0, 0, ..., 1
-  ) $
-and $ bold(b) =  vec(
+  ) quad "and" quad bold(b) =  vec(
   integral_(x_0) ^ (x_1) f(x) dif x, 
   integral_(x_1) ^ (x_2) f(x) dif x,
   dots.v,
@@ -153,6 +153,8 @@ and $ bold(b) =  vec(
 )
 $
 ]
+#pagebreak()
+
 
 = FEM for PDEs II
 
@@ -165,39 +167,51 @@ $
 
 Main idea: if the weak form is well-posed (by L-M Theorem) and the data is regular, then the strong form is also well-posed and the solution to the weak form also solves the strong form.
 
+
+== Hilbert space
+
+#definition(name: "Hilbert space")[
+  A Hilbert space is a complete inner product (linear vector) space.
+]
+
+An inner product space is written as $V, (dot.c, dot.c)_V$ where $V$ is a linear vector space and $(dot.c, dot.c)_V$ is a inner product. The inner product induces a norm $|| dot.c || _V$ on the space.
+
+#example(name: $RR^n$)[$(x, y) = sum_i x_i y_i$ and $|| x || _ (RR ^ n) = sqrt(sum_i x_i^2)$.]
+
+#example(name: $L^2(Omega)$)[$(f, g) = integral_Omega f g  dif x$ and $|| f || _(L^2(Omega)) = sqrt(integral_Omega f^2 dif x)$.]
+
 == Lax-Milgram Theorem 
 
-#theorem(name: "Lax-Milgram Theorem")[Let $V$ be a Hilbert space, $b(dot.c, dot.c)$ a bi-linear form of $V times V$, and $l(dot.c)$ a linear function on $V$. Assume: 
+#theorem(name: "Lax-Milgram Theorem")[Let $V$ be a Hilbert space, $b(dot.c, dot.c)$ a bi-linear form on $V times V$, and $l(dot.c)$ a linear functional on $V$. Assume: 
 
 $ 
-|b(w, v)| <= c_b || w || _V || v || _V quad & forall w, v in V \
-|l(v)| <= c_l || v || _V quad & forall v in V \
-b(w, w) >= alpha || w || ^2 _V quad & forall w in V
+|b(w, v)| <= c_b || w || _V || v || _V quad & forall w, v in V  quad &"Continuity of " b \
+|l(v)| <= c_l || v || _V quad & forall v in V  &"Continuity of " l\
+b(w, w) >= alpha || w || ^2 _V quad & forall w in V &"Coercivity"
 $
 
-for some $c_b, c_l, alpha$.
+for some $c_b, c_l, alpha > 0$.
 Then the following problem has a unique solution (with continuous dependence):
 
 - Find $u in V$ such that $b(u, v) = l(v)$ for all $v in V$.]
 
-The proof is omitted. 
-
-== Hilbert space
-
-A Hilbert space is a complete inner product (linear vector) space.
-
-An inner product space is written as $V, (dot.c, dot.c)_V$ where $V$ is a linear vector space and $(dot.c, dot.c)_V$ is a inner product. The inner product induces a norm $|| dot.c || _V$ on the space.
-
-#example[$RR^n$. $(x, y) = sum_i x_i y_i$ and $|| x || _ (RR ^ n) = sqrt(sum_i x_i^2)$.]
-
-#example[$L^2(Omega)$. $(f, g) = integral_Omega f g  dif x$ and $|| f || _(L^2(Omega)) = sqrt(integral_Omega f^2 dif x)$.]
 
 == Poincare-Friedrichs inequality
-#theorem(name: "Poincare-Friedrichs inequality")[
-There is a $c_"PF" > 0$ such that $ || w ||_(L^2(Omega)) <= c_"PF" || w' ||_(L^2(Omega)) $ for any $w in H_0^1(Omega)$.]
 
-#corollary[$ || w' ||_(L^2(Omega))^2 <=  || w' ||_(L^2(Omega))^2 + || w ||_(L^2(Omega))^2  <= (1 + c^2_"PF") || w' ||_(L^2(Omega))^2 $
-where $|| w' ||_(L^2(Omega))^2 + || w ||_(L^2(Omega))^2 = || w || _(H^1(Omega))^2$. Then $|| w' ||_(L^2(Omega))^2$ is an equivalent norm on $H^1(Omega)$ and thus on $H_0^1(Omega)$.]
+
+#theorem(name: "Poincare-Friedrichs inequality")[
+For all $w in H_0^1(Omega)$, there exists $c_"PF" > 0$ such that $ || w ||_(L^2(Omega)) <= c_"PF" || w' ||_(L^2(Omega)) $]
+
+
+#corollary[
+  $ || w || _(H^1(Omega)) =  sqrt(|| w' ||_(L^2(Omega))^2 + || w ||_(L^2(Omega))^2) $ and $|| w' || _(lebs)$ are equivalent norms on $H^1(Omega)$ and thus on $H_0^1(Omega)$.]
+
+#proof[
+  By Poincare-Friedrichs inequality,
+  $ || w' ||_(L^2(Omega))^2 <=  || w' ||_(L^2(Omega))^2 + || w ||_(L^2(Omega))^2  <= (1 + c^2_"PF") || w' ||_(L^2(Omega))^2 $
+
+  Taking the square root yields the result.
+]
 
 == Main example
 
@@ -207,20 +221,55 @@ for any $v in H_0^1(Omega)$.
 
 Here $b(u, v) = integral_0^1 u' v' dif x$ and $l(v) = integral_0 ^1 f v dif x$. This problem is well-posed.]
 
-#proof[
-We prove that the problem is well-posed by Lax-Milgram Theorem. 
-- $V = H_0^1(Omega)$ is a Hilbert space, with inner product $(w, v)_V = integral_0^1 w' v' dif x$ and induced norm $|| w || _V = sqrt(integral_Omega (w')^2 dif x) $.
-- Cauchy-Schwartz inequality with $c_b = 1$.
-- Cauchy-Schwartz inequality and PF inequality (to go from $L^2(Omega)$ norms to $V$ norms).
-- Trivial.
-Thus the problem is well-posed.
+#proof[$V = H_0^1(Omega)$ with inner product $angle.l w, v angle.r_V = integral_0^1 w' v' dif x$ is a Hilbert space with induced norm $ || w || _V = sqrt(integral_Omega (w')^2 dif x) $
+
+#list(
+  [Clearly $b(u, v) = integral_0^1 u' v' dif x = angle.l u, v angle.r _ V$ is bi-linear and $l(v) =integral_0 ^1 f v dif = angle.l f, v angle.r _ lebs $ is linear. ],
+  [Continuity of $b$:  For all $u, v in V$, by Cauchy-Schwartz inequality on $V$, 
+    $ |b(u, v)| = |angle.l u, v angle.r_V| <= norm(u)_V norm(v)_V $
+    Thus we can take $c_b = 1$.],
+      [Continuity of $l$: For all $v in V$, 
+
+    $ |l(v)| = |angle.l f, v angle.r_lebs | <= norm(f)_lebs norm(v)_lebs <= norm(f)_lebs (c_"PF" norm(v')_lebs) = (c_"PF" norm(f)_lebs)  norm(v)_V $
+    The first inequality is due to Cauchy-Schwartz inequality on $lebs$ and the second is due to Poincare-Friedrichs inequality. Thus we can take $c_l = c_"PF" norm(f)_lebs$.
+  ],
+  [
+    Coersivity of $b$: For all $w in V$,
+    $ b(w, w) = angle.l w, w angle.r_V = norm(w)_V^2 $
+    Thus we can take $alpha=1$.],
+)
+By Lax-Milgram Theorem, the problem is well-posed.
 ]
+
+== Intermezzo
+
+$ C^oo(Omega) = {phi.alt: Omega -> RR |  phi.alt, phi.alt', phi.alt'', dots "are continuous"} $ 
+
+$ C^oo_0(Omega) = {phi.alt: Omega -> RR | phi.alt, phi.alt', phi.alt'', dots "are continuous and 0 on the boundary"} $
+
+#definition(name: "Weak derivative")[
+  Let $v in #lebs$. If for all $phi.alt in C_0^oo (Omega)$, there exists $w in #lebs$ such that $ integral_Omega w phi.alt dif x = integral_Omega - v phi.alt' dif x $ where $phi.alt'$ is the classical derivative of $phi.alt$, then we define  the _weak derivative_ of $v$ as $w$.
+]
+Not every function has a weak derivative. 
+
+#example(name: "Main trivial example")[
+  Assume $v in C^1(overline(Omega))$. Then $ integral_Omega v' phi.alt dif x = integral_Omega - v phi.alt' dif x + [v phi.alt  ]_0 ^ 1 = integral_Omega - v phi.alt' dif x $ for any $phi.alt in C_0^oo (Omega)$. Thus the classical derivative of $v$ is its weak derivative. 
+]
+
+#example(name: "Main non-trivial example")[Let $ v(x) = cases(2x quad x in [0, 1/2], 2 - 2x quad x in [1/2, 1]) $ 
+Then $ w(x) = cases(2 quad x in (0, 1/2), -2 quad x in (1/2, 1)) $ is the weak derivative of $v$.
+The value of $w$ at $x = 1/2$ is arbitrary.
+]
+
+#example[The solution to the weak form also solves the strong form, assuming $f in C(overline(Omega))$.]
+
+#proof[Given $ integral_Omega u' phi.alt' dif x = integral_Omega f phi.alt dif x $ for all $phi.alt in H_0^1(Omega) supset C_0^oo(Omega) $. Hence $u'$ has weak derivative $u'' = -f in L^2 (Omega)$. Next, assume $f in C(overline(Omega)) subset #lebs$, then $u'' in C(overline(Omega))$ and thus $u in C^2(overline(Omega))$. Thus $-u''(x) = f(x)$ for all $x in Omega$.]
+
 
 == Convergence of FEM
 
-#lemma(name: "Galerkin orthogonality")[
-  $ into (u' - u_h')v_h' dx = 0 $
-  for all $v_h in V_h$.
+#lemma(name: "Galerkin orthogonality")[For all $v_h in V_h$,
+  $ angle.l u - u_h, v_h angle.r_V =  into (u' - u_h')v_h' dx = 0 $
 ]
 #proof[
   Take $v = v_h in V_h subset V$ in the weak form:
@@ -230,54 +279,66 @@ Thus the problem is well-posed.
   Subtracting second equation from the first gives the result. 
 ]
 
-#theorem(name: "A priori error analysis")[$ ||u - u_h|| _V = || u' - u_h' || _#lebs <= || u' - v_h' || _#lebs = ||u - v_h|| _V $ for any $v_h in V_h$. This implies that $u_h$ is the best possible approximation for $u$ in $V_h$.]
+#lemma(name: "Interpolation error estimate")[
+  Given $w in H^2(Omega)$, let $I_h(w) in V_h$ denote the linear interpolant of $w$ on the finite element mesh, namely for $i = 0, 1, dots, N$,
+  $ I_h(w)(x_i) = x_i $
+  Then there exists $C > 0$ such that 
+  $ norm(w' - I_h(w)')_lebs <= C h $
+]
 
 #proof[
-  Applying the above lemma twice (the first time with $u_h = v_h$) and use C-S inequality: 
-  $ 
-    norm(u' - u_h')_lebs^2 &= into (u' - u_h') (u' - u_h') dx \
-    &= into (u' - u_h') u' dx \
-    &= into (u' - u_h') (u' - v_h') dx \
-    &<= norm(u' - u_h')_lebs norm(u' - v_h')_lebs
+  Define for $x in Omega$, $ e(x) = w(x) - I_h(w)(x) $
+  Fix $i in {1, dots, N}$. Since $e(x_(i-1)) = e(x_i) = 0$, by Rolle's Theorem, there exists $xi_i in (x_(i-1), x_i)$ such that $e'(xi_i) = 0$.
+  For $x in (x_(i-1), x_i)$, $ |e'(x)| = |e'(xi_i) + integral_(xi_i)^x e''(t) dif t | = |integral_(xi_i)^x w''(t) dif t| <= sqrt(h) sqrt(integral_(x_(i-1))^(x_i) (w''(t))^2 dif t) $
+  by C-S inequality. Then
+
+  $ norm(e')^2_lebs &= sum_(i=1)^N integral_(x_(i-1))^(x_i) (e'(x))^2 dif x \
+  &<= sum_(i=1)^N integral_(x_(i-1))^(x_i) (h integral_(x_(i-1))^(x_i) (w''(t))^2 dif t) dx \ 
+  &= sum_(i=1)^N h^2 (integral_(x_(i-1))^(x_i) (w''(t))^2 dif t) \
+  &= h^2 norm(w'')^2_lebs 
   $
 
-  Thus $norm(u' - u_h')_lebs <= norm(u' - v_h')_lebs$.
+  where we take $C^2 = norm(w'')^2_lebs $. Taking the square root yields the result.
+]
+#theorem(name: "A priori error analysis")[For all $v_h in V_h$, 
+// $ ||u - u_h|| _V = || u' - u_h' || _#lebs <= || u' - v_h' || _#lebs = ||u - v_h|| _V $
+$ ||u - u_h|| _V  <=  ||u - v_h|| _V $
+
+This implies that $u_h$ is the best possible approximation for $u$ in $V_h$.]
+
+// #proof[
+
+//   $ 
+//     norm(u' - u_h')_lebs^2 &= into (u' - u_h') (u' - u_h') dx \
+//     &= into (u' - u_h') u' dx \
+//     &= into (u' - u_h') (u' - v_h') dx \
+//     &<= norm(u' - u_h')_lebs norm(u' - v_h')_lebs
+//   $
+
+//   Thus $norm(u' - u_h')_lebs <= norm(u' - v_h')_lebs$.
+// ]
+
+#proof[
+  Apply Galerkin orthogonality twice (the first time with $u_h = v_h$) and use C-S inequality: 
+  $
+    norm(u - u_h)_V^2 &= angle.l u - u_h, u - u_h angle.r_V \
+    &= angle.l u - u_h, u angle.r_V - angle.l u - u_h,  u_h angle.r_V - angle.l u - u_h,  v_h angle.r_V \
+    &= angle.l u - u_h, u - v_h angle.r_V \
+    &<= norm(u-u_h)_V norm(u-v_h)_V
+  $
+
+  Cancelling $norm(u - u_h)_V$ on both sides gives the result. 
 ]
 
 #corollary[
-  $ || u' - u_h' || _#lebs <= C h $ for some constant $C$.
+  There exists $C > 0$ such that $ || u' - u_h' || _#lebs <= C h $ 
 ]
 
 #proof[
-  Take $v_h$ as the linear interpolant of $u$.
+  Take $v_h$ as the linear interpolant of $u$ in the previous theorem.
 ]
 
 The corollary implies that as $h -> 0$, $u_h -> u$ and the order of convergence is linear.
-
-== Intermezzo
-
-$ C^oo(Omega) = {phi.alt: Omega -> RR |  phi.alt, phi.alt', phi.alt'', dots "are continuous"} $ 
-
-$ C^oo_0(Omega) = {phi.alt: Omega -> RR | phi.alt, phi.alt', phi.alt'', dots "are continuous and 0 on the boundary"} $
-
-#definition(name: "Weak derivative")[
-  $v in #lebs$ has a weak derivative when there is $w in #lebs$ such that $ integral_Omega w phi.alt dif x = integral_Omega - v phi.alt' dif x $ for any $phi.alt in C_0^oo (Omega)$ (where $phi.alt'$ is the classical derivative of $phi.alt$). Then we define $v'$ (the _weak derivative_ of $v$) as $w$.
-]
-Not every function has a weak derivative. 
-
-#example(name: "Main trivial example")[
-  Assume $v in C^1(overline(Omega))$. Then $ integral_Omega v' phi.alt dif x = integral_Omega - v phi.alt' dif x + v phi.alt  ]_0 ^ 1 = integral_Omega - v phi.alt' dif x $ for any $phi.alt in C_0^oo (Omega)$. Thus the weak derivative of $v$ is the classcial derivative. 
-]
-
-#example(name: "Main non-trivial example")[Let $ v(x) = cases(2x quad x in [0, 1/2], 2 - 2x quad x in [1/2, 1]) $ 
-Then $ w(x) = cases(2 quad x in (0, 1/2), -2 quad x in (1/2, 1)) $
-The value of $w$ at $x = 1/2$ is arbitrary.
-]
-
-#example[The solution to the weak form also solves the strong form, assuming $f in C(overline(Omega))$.]
-
-#proof[Given $ integral_Omega u' phi.alt' dif x = integral_Omega f phi.alt dif x $ for all $phi.alt in H_0^1(Omega) supset C_0^oo(Omega) $. Hence $u'$ has weak derivative $u'' = -f in L^2 (Omega)$. Next, assume $f in C(overline(Omega)) subset #lebs$, then $u'' in C(overline(Omega))$ and thus $u in C^2(overline(Omega))$. Thus $-u''(x) = f(x)$ for all $x in Omega$.]
-
 
 = FEM for PDEs III: PDE extensions
 == Poisson problem 
