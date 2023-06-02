@@ -160,7 +160,7 @@ $
 
 == Well-posedness
 
-#definition[ A PDE problem is well-posed if
+#definition(name: "Well-posedness")[ A PDE problem is _well-posed_ if
 - A unique solution exists. 
 - Continuous dependence (small changes in the problem lead to small changes in the solution).]
 
@@ -340,17 +340,28 @@ This implies that $u_h$ is the best possible approximation for $u$ in $V_h$.]
 
 The corollary implies that as $h -> 0$, $u_h -> u$ and the order of convergence is linear.
 
-= FEM for PDEs III: PDE extensions
+#pagebreak()
+
+= FEM for PDEs III
 == Poisson problem 
 #definition(name: "Laplacian")[$ Delta = nabla dot.c nabla = diff^2/(diff^2 x) + diff^2/(diff^2 y) = (dot.c)_(x x) + (dot.c)_(y y) $]
-Let $Omega in RR^2$ be an open subset. The _Poisson problem_ is solving $ -Delta u = f $ in $Omega$, subject to $u = 0$ on $diff Omega$. 
 
-Weak form. Find $u in H_0^1(Omega)$ such that $ integral_Omega nabla u dot.c nabla v dif x = integral_Omega f v dif x $ for all $v in H_0^1(Omega)$.
+Let $Omega in RR^2$ be an open subset.
 
-We define 
-$ #lebs = { v: Omega -> RR | norm(v)_#lebs < oo } $
-$ H^1(Omega) = {v in #lebs | v_x, v_y in #lebs} $
-$ H_0^1(Omega) = {v in H^1(Omega) | v = 0 "on" diff Omega} $
+#definition[
+$ #lebs &= { v: Omega -> RR | norm(v)_#lebs < oo } \
+ H^1(Omega) &= {v in #lebs | v_x, v_y in #lebs} \
+ H_0^1(Omega) &= {v in H^1(Omega) | v = 0 "on" diff Omega} $
+]
+
+#definition[
+Given $f$, the _Poisson problem_ is to solve $ -Delta u = f $ in $Omega$, subject to $u = 0$ on $diff Omega$. 
+]
+
+#definition(name: "Weak form")[
+Given $f$, find $u in H_0^1(Omega)$ such that for all $v in H_0^1(Omega)$, $ integral_Omega nabla u dot.c nabla v dif x = integral_Omega f v dif x $ 
+]
+
 
 == Galerkin FEM method for triangulations
 
@@ -360,8 +371,8 @@ $ H_0^1(Omega) = {v in H^1(Omega) | v = 0 "on" diff Omega} $
   [
     Galerkin FEM ($U_h = V_h$). Define 
     $ V_h = {w_h: Omega -> RR | w_h "is continuous", w_h = 0 "on" diff Omega, w_h | _T in PP^1(T) quad  forall T "in mesh"} $
-    ($w_h(x, y) = c_0 + c_1 x + c_2 y$ for $(x, y) in T$), which is the set of continuous piecewise-linear functions defined on $Omega$ that vanish on $diff Omega$.  Find $u_h in V_h$ such that 
-    $ integral_Omega nabla u_h dot.c nabla v_h dif x = integral_Omega f v_h dif x $ for any $v_h in V_h$.
+    ($w_h(x, y) = c_0 + c_1 x + c_2 y$ for $(x, y) in T$), which is the set of continuous piecewise-linear functions defined on $Omega$ that vanish on $diff Omega$. Find $u_h in V_h$ such that for all $v_h in V_h$,
+    $ integral_Omega nabla u_h dot.c nabla v_h dif x = integral_Omega f v_h dif x $ 
   ],
   [
     Basis of hat-functions (2-D). 
@@ -394,6 +405,8 @@ $ H_0^1(Omega) = {v in H^1(Omega) | v = 0 "on" diff Omega} $
   $ M_(i j) = integral_Omega phi_j phi_i dif x$, $K_(i j) = into phi_j' phi_i' dx  $, and $b_i(t) = into f(t, x) phi_i(x) dx$.
 ]
 
+#pagebreak()
+
 = Linear Systems: Advanced Methods I 
 
 == Problem 
@@ -422,7 +435,7 @@ Main idea: use $bold(r) = bold(b) - A bold(hat(x))$ and $norm(bold(r))$.
 ]
 
 #definition[
-  The induced/subordinate/natural matrix norm is defined as 
+  The _induced/subordinate/natural_ matrix norm for a given vector norm is defined as 
   $ norm(A)
   =max_(bd(x) != bd(0)) (norm(A bd(x)))/ (norm(bd(x)))
   =max_(norm(bd(x)) = 1) norm(A bd(x)) $
@@ -432,12 +445,12 @@ Main idea: use $bold(r) = bold(b) - A bold(hat(x))$ and $norm(bold(r))$.
   $ A = mat(1, 1/3; 1/3, 1) $
   We now compute $norm(A)_2$. Take $bd(x) = vec(a, b) != bd(0)$, then 
   $ A bd(x) = vec(a + b/3, a/3 + b)$. Then
-  $ (norm(A bd(x)) / norm(bd x)) ^2  = (10/9 (a² + b²) + 4/3 a b) / (a² + b²) = 10/9 + 2/3 (2a b) / (a² + b²) <= 10/9 + 2/3 = 16 / 9 $
-  The maximum value is taken when $a = b$. Thus 
+  $ (norm(A bd(x))_2 / norm(bd x)_2) ^2  = (10/9 (a² + b²) + 4/3 a b) / (a² + b²) = 10/9 + 2/3 (2a b) / (a² + b²) <= 10/9 + 2/3 = 16 / 9 $
+  The maximum is obtained when $a = b$. Thus 
   $ norm(A)_2 = 4/3 $
 ]
 
-#theorem[
+#theorem[ For a vector norm and its induced matrix norm, 
   $ norm(A bd(x)) <= norm(A) norm(bd(x)) $
 ]
 #definition[
