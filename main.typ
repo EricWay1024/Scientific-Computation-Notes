@@ -1,5 +1,7 @@
 #import "template.typ": *
 #import "theorem.typ": *
+#import "algo.typ" : *
+
 #set heading(numbering: "1.a.")
 #let lebs = [ $L^2(Omega)$ ]
 #let into = [ $integral_Omega$ ]
@@ -440,12 +442,6 @@ Given $f$, find $u in H_0^1(Omega)$ such that for all $v in H_0^1(Omega)$, $ int
 
 = Linear Systems: Advanced Methods I 
 
-== Problem 
-
-Given $A in RR ^ (n times n), bold(b) in RR^n$. Assume there exists $bold(x) in RR^n$ such that $A bold(x) = bold(b)$. Given $hat(bold(x))$, an approximation to $bold(x)$, estimate the upper bound for the error $norm(bold(x) - bold(hat(x)))$. 
-
-Main idea: use $bold(hat(r)) = bold(b) - A bold(hat(x))$ and $norm(bold(hat(r)))$.
-
 == Vector norms and matrix norms
 
 #definition[
@@ -489,46 +485,10 @@ Main idea: use $bold(hat(r)) = bold(b) - A bold(hat(x))$ and $norm(bold(hat(r)))
   This follows directly from the definition of induced matrix norm. 
 ]
 #definition[
-  For a square matrix $A$,
+  For a non-singular square matrix $A$,
   $ kappa(A)=norm(A) norm(A^(-1)) $ is the _condition number_ of $A$.
 ]
 
-Let $A, bd(b), bd(x), bd(hat(x))$ be such that $A bd(x) = bd(b)$ and $bold(hat(r)) = bold(b) - A bold(hat(x))$.
-#theorem(name: "Absolute error estimate")[
-    $ norm(bd(x) - bd(hat(x))) <= norm(A^(-1)) norm(hat(bd(r))) $ <error-1>
-]
-
-#proof[
-  $ 
-    norm(bd(x) - bd(hat(x))) 
-    &= norm(A^(-1)bd(b) - bd(hat(x))) \
-    &= norm(A^(-1)(bd(b) - A bd(hat(x)))) \
-    &= norm(A^(-1) hat(bd(r))) \
-    &<= norm(A^(-1)) norm(hat(bd(r)))
-  $
-  The last inequality is due to #thmref(<matrix-norm>)[Theorem].
-]
-#theorem(name: "Relative error estimate")[
-  For any $bd(x) != bd(0)$,
-  $ norm(bd(x) - bd(hat(x))) / norm(bd(x)) <= kappa(A) norm(bd(hat(r))) / norm(bd(b)) $
-  <error-2>
-]
-
-#proof[
-  By #thmref(<matrix-norm>)[Theorem],
-  $
-    norm(bd(b)) = norm(A bd(x)) <= norm(A) norm(bd(x))
-  $
-  Thus for $bd(x) != bd(0)$,
-  $
-    1 / norm(bd(x)) <= norm(A) / norm(bd(b))
-  $
-  Then by #thmref(<error-1>)[Theorem],
-  $
-    norm(bd(x) - bd(hat(x))) / norm(bd(x)) <=norm(A) norm(A^(-1)) norm(bd(hat(r))) / norm(bd(b))  = kappa(A) norm(bd(hat(r))) / norm(bd(b))
-  $
-
-]
 
 
 #lemma[
@@ -568,11 +528,51 @@ Let $A, bd(b), bd(x), bd(hat(x))$ be such that $A bd(x) = bd(b)$ and $bold(hat(r
 
   If $k = "argmax"_j|mu_j|$, then the maximum is obtained when $x_i = delta_(i, k)$. This proves the result.
 ]
+== Error estimates
+
+Given $A in RR ^ (n times n), bold(b) in RR^n$. Assume there exists $bold(x) in RR^n$ such that $A bold(x) = bold(b)$. Given $hat(bold(x))$, an approximation to $bold(x)$, estimate the upper bound for the error $norm(bold(x) - bold(hat(x)))$.  The main idea is to use $bold(hat(r)) = bold(b) - A bold(hat(x))$ and $norm(bold(hat(r)))$.
+
+// Let $A, bd(b), bd(x), bd(hat(x))$ be such that $A bd(x) = bd(b)$ and $bold(hat(r)) = bold(b) - A bold(hat(x))$.
+#theorem(name: "Absolute error estimate")[
+    $ norm(bd(x) - bd(hat(x))) <= norm(A^(-1)) norm(hat(bd(r))) $ <error-1>
+]
+
+#proof[
+  $ 
+    norm(bd(x) - bd(hat(x))) 
+    &= norm(A^(-1)bd(b) - bd(hat(x))) \
+    &= norm(A^(-1)(bd(b) - A bd(hat(x)))) \
+    &= norm(A^(-1) hat(bd(r))) \
+    &<= norm(A^(-1)) norm(hat(bd(r)))
+  $
+  The last inequality is due to #thmref(<matrix-norm>)[Theorem].
+]
+#theorem(name: "Relative error estimate")[
+  For any $bd(x) != bd(0)$,
+  $ norm(bd(x) - bd(hat(x))) / norm(bd(x)) <= kappa(A) norm(bd(hat(r))) / norm(bd(b)) $
+  <error-2>
+]
+
+#proof[
+  By #thmref(<matrix-norm>)[Theorem],
+  $
+    norm(bd(b)) = norm(A bd(x)) <= norm(A) norm(bd(x))
+  $
+  Thus for $bd(x) != bd(0)$,
+  $
+    1 / norm(bd(x)) <= norm(A) / norm(bd(b))
+  $
+  Then by #thmref(<error-1>)[Theorem],
+  $
+    norm(bd(x) - bd(hat(x))) / norm(bd(x)) <=norm(A) norm(A^(-1)) norm(bd(hat(r))) / norm(bd(b))  = kappa(A) norm(bd(hat(r))) / norm(bd(b))
+  $
+
+]
+
 
 #theorem(name: "Perturbation Theorem")[
-  Let $A bd(x) = bd(b)$ and $(A + delta A) hat(bd(x)) = bd(b) + delta bd(b)$, where $delta A$ and $delta bd(b)$ are perturbations. Then 
+  Let $A bd(x) = bd(b)$ and $(A + delta A) hat(bd(x)) = bd(b) + delta bd(b)$, where $delta A$ and $delta bd(b)$ are perturbations. Assume $norm(delta A) < 1/norm(A^(-1))$. Then there exists $C>0$ such that
   $ norm(bd(x) - hat(bd(x))) / norm(bd(x)) <= C (norm(delta bd(b)) / norm(bd(b)) + norm(delta A) / norm(A) ) $
-  where small $delta A$ is assumed: $norm(delta A) < 1/norm(A^(-1))$.
 ]
 
 #proof[
@@ -598,13 +598,14 @@ Let $A, bd(b), bd(x), bd(hat(x))$ be such that $A bd(x) = bd(b)$ and $bold(hat(r
   This proves the result.
 ]
 
+#pagebreak()
 = Linear Systems: Advanced Methods II
 
 #definition[
   $Q in RR^(n times n)$ is said to be an _orthognal_ matrix when $Q^t Q = I$.
 ]
 
-#theorem[
+#theorem(name: "QR factorisation")[
   Let $A in RR^(n times n)$. Then there exist an orthognal matrix $Q in RR^(n times n)$ and an upper triangular matrix $R in RR^(n times n)$ such that $A = Q R$.
 ]
 
@@ -612,8 +613,31 @@ Let $A, bd(b), bd(x), bd(hat(x))$ be such that $A bd(x) = bd(b)$ and $bold(hat(r
   If $A bd(x) = bd(b)$, then $R bd(x) = Q^t bd(b)$, which can be solved using backwards substitution.
 ]
 
-TODO
+#example(name: "Over-determined systems")[
+  Consider $A bd(x) = bd(b)$, where $A in RR^(m times n), bd(x) = RR^n, bd(b) in RR^m$ and $m > n$. Then there is generally no solution to $bd(x)$. We would then like to find the least-squares solution, which is to find $bd(x) = RR^n$ that minimises $1/2 norm(bd(b) - A bd(x))^2_2$. Differentiating using matrix calculus gives $ A^t A bd(x) = A^t bd(b) $
+  It is not advisable to compute $B = A^t A$ and then use Gaussian elimination on $B bd(x) = A^t bd(b)$. Instead, factorise $A$ as $A = Q R$ and $ (R^t Q^t) (Q R) bd(x) = (R^t Q^t) bd(b) $
+  Since $Q^t Q = I$, pre-multiplying $R^(-t)$ gives 
+  $ R bd(x) = Q^t bd(b) $
+  Thus we see that QR factorisation solves the least-squares problem.
+]
 
+To QR factorise any given matrix $A$, we apply the Gram-Schmidt algorithm. The classical implementation given below is not stable. 
+
+#algo(title: "Classical Gram-Schmidt algorithm")[
+  for $j <- 1$ to $n$ #i\
+    $bd(v)_j <- bd(a)_j$ \
+    for $i <- 1$ to $j - 1$ #i\
+      $r_(i, j) <- bd(q)_i^t bd(a)_j$ \
+      $bd(v)_j <- bd(v)_j - r_(i, j) bd(q)_i$ #d\
+    end\
+    $r_(j, j) <- norm(bd(v)_j)_2$\
+    $bd(q)_j <- bd(v)_j / r_(j, j)$ #d\
+  end\
+]
+
+
+
+#pagebreak()
 = Linear Systems: Advanced Methods III
 
 Problem: $A bd(x) = bd(b)$ where $A in RR^(n times n)$ and $A$ is SPD (symmetric positive definite).
