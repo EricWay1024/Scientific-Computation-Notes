@@ -33,6 +33,12 @@
   stroke: rgb("#ffaaaa") + 1pt,
 )
 
+#let method = thmbox(
+  "theorem",
+  "Method",
+  stroke: rgb("#aaffaa") + 1pt,
+)
+
 #let corollary = thmbox(
   "theorem",
   "Corollary",
@@ -620,8 +626,22 @@ Given $A in RR ^ (n times n), bold(b) in RR^n$. Assume there exists $bold(x) in 
   $ R bd(x) = Q^t bd(b) $
   Thus we see that QR factorisation solves the least-squares problem.
 ]
+#definition[
+  The _projection operator_ defined on an inner product space is $ "proj"_(bd(u))(bd(v)) = (angle.l bd(v), bd(u) angle.r)/(angle.l bd(u), bd(u) angle.r) bd(u) $
+  This operator projects $bd(v)$ orthogonally onto the line spanned by vector $bd(u)$. Specially, when $norm(bd(u)) = 1$, $ "proj"_(bd(u))(bd(v)) = angle.l bd(v), bd(u) angle.r bd(u) $
+]
+To QR factorise any given matrix $A$, we apply the Gram-Schmidt algorithm.
+#method(name: "Gram-Schmidt algorithm")[
+Let $bd(a)_1, dots, bd(a)_n$ be the $n$ columns of a given matrix $A$. Define $r_(1, 1) = norm(bd(a)_1)$, $bd(q)_1 = bd(a)_1 \/r_(1, 1)$, and for all $1 <= i < j <= n$, define
+$
+  r_(i, j) &=  angle.l  bd(a)_j, bd(q)_i angle.r \
+  bd(v)_j &= bd(a)_j - sum_(i=1)^(j-1) "proj"_(bd(q)_i) bd(a)_j = bd(a)_j - sum_(i=1)^(j-1) r_(i, j) bd(q)_i \
+  bd(q)_j &= bd(v)_j / r_(j, j)  quad "with" quad  r_(j, j) = norm(bd(v)_j) 
+$
+Then $Q$ defined by its $n$ columns $bd(q)_j$ and $R$ defined by its entries $r_(i, j)$ satisfy $A= Q R$.
+] 
 
-To QR factorise any given matrix $A$, we apply the Gram-Schmidt algorithm. The classical implementation given below is not stable. 
+The classical implementation given below is not stable. 
 
 #algo(title: "Classical Gram-Schmidt algorithm")[
   for $j <- 1$ to $n$ #i\
@@ -635,70 +655,156 @@ To QR factorise any given matrix $A$, we apply the Gram-Schmidt algorithm. The c
   end\
 ]
 
+To find an orthognal (instead of orthonormal) basis for $"span"{bd(a)_1, dots, bd(a)_n}$, the following simplified process can be used. 
+
+#method(name: "Gram-Schmidt algorithm")[
+Let $bd(a)_1, dots, bd(a)_n$ be the $n$ columns of a given matrix $A$. Define $bd(q)_1 = bd(a)_1 $, and for all $2 <= j <= n$, define
+$
+  bd(q)_j &= bd(a)_j - sum_(i=1)^(j-1) "proj"_(bd(q)_i) bd(a)_j 
+$
+<gs-simp>
+] 
 
 
 #pagebreak()
 = Linear Systems: Advanced Methods III
-
 Problem: $A bd(x) = bd(b)$ where $A in RR^(n times n)$ and $A$ is SPD (symmetric positive definite).
 
 == Stationary iterative methods
 
-$ bd(x)_(k+1) = T bd(x)_k + bd(c) $ where $rho(T) < 1$ and $bd(x)_k -> bd(x)$ as $k -> oo$. Note that $T$ is fixed here for all $k$. 
+#method(name: "Stationary iterative methods")[
+  Iterate from an initial guess $bd(x)_0$ using 
+$ bd(x)_(k+1) = T bd(x)_k + bd(c) $ for some $T$ and $bd(c)$ such that $rho(T) < 1$ and  $bd(x)_k -> bd(x)$ as $k -> oo$. Note that $T$ is fixed here for all $k$ (hence the name). 
+]
 
-Writing $A = D - L - U$ and we have the Jacobi method with 
+Now write $A = D - L - U$ where $D$ is a diagnoal matrix, $L$ is lower triangular and $U$ is upper triangular. 
+
+#method(name: "Jacobi method")[
+The Jacobi method is a stationary iterative method with 
 $ T &= D^(-1) (L+U) \ bd(c) &= D^(-1) bd(b) $
+]
 
-and Gauss-Seidel method with 
-$ T&=(D-L)^(-1) U  \ bd(c) &= (D - L)^(-1) bd(b) $
-
-== Non-stationary methods
-
-=== Steepest-descent method
-$ bd(x)_(k+1) = bd(x)_k + alpha_k bd(r)_k $
-
-where $bd(r)_k = bd(b) - A bd(x)_k$ and $bd(r)_k dot.c bd(r)_(k+1) = bd(r)_k^t (bd(b) - A bd(x)_(k+1)) = 0$. Therefore $ alpha_k = (bd(r)^t_k bd(r)_k) / (bd(r)^t_k A bd(r)_k) $
-
-=== The CG method
-
-Let $ bd(x)_k = bd(x)_0 + sum_(i=0)^(k-1) alpha_i bd(p)_i $ with ${bd(p)_i}$ are conjugate directions $ bd(p)_j^t A bd(p)_i = 0 $ for any $i != j$. Equivalently, $ bd(x)_(k+1) = bd(x)_k + alpha_k bd(p)_k $
-
-Denote $bd(r)_k = b - A bd(x)_k$. Then we want $ bd(p)_j dot.c bd(r)_k = bd(p)_j^t (bd(b) -  A bd(x)_k) = 0 $ for all $j = 0, dots, k - 1$. Then $ alpha_j = (bd(p)_j^t bd(r)_0) / (bd(p)_j^t A bd(p)_j) $
-
-Compute conjugate directions: $A$-orthogonal Gram-Schmidt:
-
-$ bd(p)_k = bd(r)_k - sum_(i=0)^(k-1) c_(k i) bd(p)_i $
-
-where $ c_(k i) = (bd(p)_i^t A bd(r)_k) / (bd(p)_i^t A bd(p)_i ) $ are obtained from the constraint of conjugate directions.
+#method(name: "Gauss-Seidel method")[
+  The Gauss-Seidel method is stationary iterative method with $ T&=(D-L)^(-1) U  \ bd(c) &= (D - L)^(-1) bd(b) $
+]
 
 
-=== Minimisation of $A$-norm of the error
+== Non-stationary methods: Steepest-descent method
+#method(name: "Steepest-descent method")[Iterate from an initial guess $bd(x)_0$ using 
+  $ bd(x)_(k+1) = bd(x)_k + alpha_k bd(r)_k $
 
-#definition(name: [$A$-norm])[
+where $bd(r)_k = bd(b) - A bd(x)_k$ and  $ alpha_k = (bd(r)^t_k bd(r)_k) / (bd(r)^t_k A bd(r)_k) $
+
+]
+
+#theorem[
+  Every two consecutive steps in the steepest-descent method are orthognal, i.e. $bd(r)_k dot.c bd(r)_(k+1) = 0$. 
+]
+
+#proof[
+  $ bd(r)_k dot.c bd(r)_(k+1) &= bd(r)_k^t (bd(b) - A bd(x)_(k+1))  \
+  &= bd(r)_k^t (bd(b) - A (bd(x)_k + alpha_k bd(r)_k)) \
+  &= bd(r)_k^t (bd(r)_k -  alpha_k A bd(r)_k) \
+  &= bd(r)_k^r bd(r)_k - alpha_k  bd(r)_k^t A bd(r)_k \
+  &= 0
+  
+  $
+]
+
+== Non-stationary methods: The CG method
+
+#theorem[
+  Let $A$ be a symmetric positive definite matrix. Then $ angle.l bd(u), bd(v) angle.r_A = bd(u)^t A bd(v) $ defines an inner product. <matrix-ip>
+]
+
+#definition(name: [$A$-norm])[ The _$A$-norm_ is the induced norm of the inner product defined in #thmref(<matrix-ip>)[Theorem]:
   $ norm(bd(x))_A = sqrt(bd(x)^t A bd(x)) $
 ]
+
+#definition(name: "Conjugate directions")[
+  Two vectors $bd(u)$ and $bd(v)$ are _conjugate_ if and only if they are orthogonal with respect to the inner product defined in #thmref(<matrix-ip>)[Theorem], i.e. $ angle.l bd(u), bd(v) angle.r_A = bd(u)^t A bd(v) = 0 $
+]
+
+#method(name: "CG method")[Iterate from an initial guess $bd(x)_0$ with $ bd(x)_(k+1) = bd(x)_k + alpha_k bd(p)_k $ where we define $bd(p)_0 &= bd(r)_0 = bd(b) - A bd(x)_0$ and $ 
+alpha_j &= (bd(p)_j^t bd(r)_0) / (bd(p)_j^t A bd(p)_j)  \
+bd(r)_k &= bd(b) - A bd(x)_k \
+ bd(p)_k &= bd(r)_k - sum_(i=0)^(k-1) c_(k i) bd(p)_i quad "with" quad
+ c_(k i) = (bd(p)_i^t A bd(r)_k) / (bd(p)_i^t A bd(p)_i ) \
+ $
+]
+
+#theorem[
+  In the CG method, ${bd(p)_i}$ are conjugate directions, i.e. for all $i != j$, $ bd(p)_j^t A bd(p)_i = 0 $  <cg-conjugate>
+]
+
+#proof[
+  For any given $k$, 
+  ${bd(p)_0, dots, bd(p)_k}$ are obtained exactly by applying #thmref(<gs-simp>)[Method] to ${bd(r)_0, dots, bd(r)_k}$ with respect to the inner product defined in #thmref(<matrix-ip>)[Theorem].
+]
+
+#theorem[In the CG method, for all $0 <= j <= k - 1$,
+$ bd(p)_j dot.c bd(r)_k = bd(p)_j^t (bd(b) -  A bd(x)_k) = 0 $ 
+]
+
+#proof[ From the recursive relation we obtain
+  $ bd(x)_k = bd(x)_0 + sum_(i=1)^(k-1) alpha_i bd(p)_i $
+  Thus 
+  $
+    bd(p)_j dot.c bd(r)_k = bd(p)_j^t (bd(b) -  A bd(x)_k) &= bd(p)_j^t (bd(b) -  A (bd(x)_0 + sum_(i=1)^(k-1) alpha_i bd(p)_i ) ) \
+    &= bd(p)_j^t (bd(r)_0 -  sum_(i=1)^(k-1) alpha_i A bd(p)_i  ) \
+    &= bd(p)_j^t bd(r)_0 -  sum_(i=1)^(k-1) alpha_i bd(p)_j^t  A bd(p)_i  \
+    &= bd(p)_j^t bd(r)_0 -  alpha_j bd(p)_j^t  A bd(p)_j \
+    &= 0
+  $
+
+  where $ sum_(i=1)^(k-1) bd(p)_j^t  A bd(p)_i = bd(p)_j^t  A bd(p)_j$ due to #thmref(<cg-conjugate>)[Theorem].
+]
+
+
+// Let $ bd(x)_k = bd(x)_0 + sum_(i=0)^(k-1) alpha_i bd(p)_i $ with ${bd(p)_i}$ are conjugate directions $ bd(p)_j^t A bd(p)_i = 0 $ for any $i != j$. Equivalently, $ bd(x)_(k+1) = bd(x)_k + alpha_k bd(p)_k $
+
+// Denote $bd(r)_k = b - A bd(x)_k$. Then we want $ bd(p)_j dot.c bd(r)_k = bd(p)_j^t (bd(b) -  A bd(x)_k) = 0 $ for all $j = 0, dots, k - 1$. Then $ alpha_j = (bd(p)_j^t bd(r)_0) / (bd(p)_j^t A bd(p)_j) $
+
+// Compute conjugate directions: $A$-orthogonal Gram-Schmidt:
+
+// $ bd(p)_k = bd(r)_k - sum_(i=0)^(k-1) c_(k i) bd(p)_i $
+
+// where $ c_(k i) = (bd(p)_i^t A bd(r)_k) / (bd(p)_i^t A bd(p)_i ) $ are obtained from the constraint of conjugate directions.
+
+
+// === Minimisation of $A$-norm of the error
+== Error analysis of the CG method
+
 #definition(name: ["Krylov" subspace])[
   $ cal(K)_k = "span"{bd(p)_0, dots, bd(p)_(k-1)} = "span"{bd(r)_0, dots, bd(r)_(k-1)} $
   
 ]
 #theorem[
-  Let $bd(x)_k$ be given by the CG method applied to $A bd(x) =bd(b)$ with $bd(x)_0  = bd(0)$. Assume the $k$-th step  is not yet converged, namely $bd(r)_(k-1) != bd(0)$, then $bd(x)_k$ is the unique minimiser in $cal(K)_k$ of $norm(bd(x) - bd(x)_k) _ A$. 
+  Let $bd(x)_k$ be given by the CG method applied to $A bd(x) =bd(b)$ with $bd(x)_0  = bd(0)$. Assume at the $k$-th step  the method is not yet converged, namely $bd(r)_(k-1) != bd(0)$, then $bd(x)_k$ is the unique minimiser in $cal(K)_k$ of $norm(bd(x) - bd(x)_k) _ A$. 
 ]
 
 #proof[
-  Consider an arbitrary $bd(y) in cal(K)_k$ and $bd(y) = bd(x)_k -  bd(delta x)$. Let $bd(e) = bd(x) - bd(y) = bd(x) - bd(x)_k + bd( delta  x)$. Let $bd(e)_k = bd(x) - bd(x)_k$, then $bd(e) = bd(e)_k +  bd(delta x)$.
-  Then $ norm(bd(e))_A^2 &= (bd(e)_k + bd(delta x))^t A (bd(e)_k + bd(delta x)) \
+  Consider an arbitrary $bd(y) in cal(K)_k$. We would like to show that $norm(bd(x) -bd(y))_A >= norm(bd(x) - bd(x)_k)_A$. Let $bd(e) = bd(x) - bd(y)$ and $bd(e)_k = bd(x) - bd(x)_k$. Then $A bd(e)_k = A(bd(x) - bd(x)_k) = bd(b)-A bd(x)_k = bd(r)_k$. 
+  
+  Further let $bd(delta x) = bd(x)_k - bd(y) $. Note that $bd(delta x) in cal(K)_k$ is a linear combination of $bd(p)_0, dots, bd(p)_(k-1)$ and $bd(r)_k^t bd(p)_j = 0$ for all $j = 0, dots, k - 1$. Thus $bd(delta x)^t bd(r)_k = 0$.
+  
+  From $bd(e) = bd(e)_k +  bd(delta x)$ we deduce
+  $ norm(bd(e))_A^2 &= (bd(e)_k + bd(delta x))^t A (bd(e)_k + bd(delta x)) \
   &= bd(e)_k^t A bd(e)_k + bd(delta x)^t A bd(e)_k + bd(e)_k^t A bd(delta x) + bd(delta x)^t A bd(delta x) \
+  &= bd(e)_k^t A bd(e)_k + 2 bd(delta x)^t A bd(e)_k  + bd(delta x)^t A bd(delta x) \ 
+  &= bd(e)_k^t A bd(e)_k + 2 bd(delta x)^t bd(r)_k  + bd(delta x)^t A bd(delta x) \
+  
   &= bd(e)_k^t A bd(e)_k + bd(delta x)^t A bd(delta x)
   $
-  which is minimised exactly when $bd(delta x) = bd(0)$ since $A$ is positive definite. (Note that $bd(delta x) in cal(K)_k$, $bd(r)_k^t bd(p)_j = 0$ for all $j = 0, dots, k - 1$ and $A = A^t$.)
+  which is minimised exactly when $bd(delta x) = bd(0)$ since $A$ is positive definite. 
 ]
 
 #theorem[
   Assume $bd(r)_k != 0$, then $bd(p)_k != 0$.
 ]
-#proof[
-  $ bd(p)_k^t bd(r)_k = bd(r)_k^t bd(r)_k - sum_(i=0)^(k-1) c_(k i) bd(p)_i^t bd(r)_k = bd(r)_k^t bd(r)_k $
+#proof[ From how we calculate $bd(p)_k$,
+  $ bd(p)_k^t bd(r)_k = bd(r)_k^t bd(r)_k - sum_(i=0)^(k-1) c_(k i) bd(p)_i^t bd(r)_k = bd(r)_k^t bd(r)_k >0 $
+  The result thus follows.
 ]
 
 #corollary[
@@ -712,6 +818,8 @@ where $ c_(k i) = (bd(p)_i^t A bd(r)_k) / (bd(p)_i^t A bd(p)_i ) $ are obtained 
   When $n$ is large,
   $ (norm(bd(e)_k)_A) / (norm(bd(e)_0)_A) <= 2 ((sqrt(kappa) - 1) / (sqrt(kappa) + 1))^k -> abs(1 - 2 / sqrt(kappa)) $ as $k -> oo$, where $kappa = kappa(A)$ is the conditional nubmer of $A$. 
 ]
+
+#pagebreak()
 
 = Low-Rank Approximation I
 
