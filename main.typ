@@ -36,6 +36,12 @@
 #let method = thmbox(
   "theorem",
   "Method",
+  stroke: rgb("#aaaaff") + 1pt,
+)
+
+#let problem = thmbox(
+  "theorem",
+  "Problem",
   stroke: rgb("#aaffaa") + 1pt,
 )
 
@@ -77,9 +83,9 @@
 
 == Problem statement
 
-Let $Omega subset RR$ be a closed interval. We take $Omega =  [0, 1]$ as an example. 
+Let $Omega subset RR$ be an open interval. We always take $Omega =  (0, 1)$ as an example. 
 
-#definition[
+#definition(name: "Sobolev spaces")[
   Define the _Sobolev spaces_
   $ H^1(Omega) &= {v : Omega -> RR | v, v' in L^2 (Omega)} \
    H_0^1(Omega) &= { v in H^1(Omega) | v(0) = v(1) = 0} \
@@ -90,18 +96,18 @@ Let $Omega subset RR$ be a closed interval. We take $Omega =  [0, 1]$ as an exam
   where $L^2(Omega)$ is the Lebesgue space. 
 ]
 
-#definition(name: "Two-point boundary value problem, strong form")[Given $f : Omega -> RR$, the _strong form_ of a _two-point boundary value problem_ is to find $u : Omega -> RR$ such that 
-$ cases(-u'' = f, u(0) = 0, u(1) = 0) $]
+#problem(name: "Two-point boundary value problem, strong form")[Given $f in lebs$, the _strong form_ of a _two-point boundary value problem_ is to find $u in H_0^1(Omega)$ such that 
+$ -u'' = f $]
 
 
-#definition(name: "Two-point boundary value problem, weak form")[
-Given $f : Omega -> RR$, the _weak form_ of a _two-point boundary value problem_ is to find $u in H_1^0(Omega)$ such that 
+#problem(name: "Two-point boundary value problem, weak form")[
+Given $f in lebs$, the _weak form_ of a _two-point boundary value problem_ is to find $u in H_0^1(Omega)$ such that for all $v in H_0^1(Omega)$
 $ integral_0^1 u' v' dif x = integral_0 ^1 f v dif x  $
-for any $v in H_0^1(Omega)$.
+<weak-form>
 ]
 
 #theorem[
-  Any solution $u in H_1^0(Omega)$ to the strong form also solves the weak form.
+  Any solution $u in H_0^1(Omega)$ to the strong form also solves the weak form.
 ]
 
 #proof[
@@ -111,15 +117,16 @@ Thus $u$ also solves the weak form.
 ]
 
 
-== Petrov-Galerkin discretization
 
-#definition(name: "Abstract weak form")[
-  Let $U, V$ be function spaces. Given $b$ and $l$,
- find $u in U$ such that $ b(u, v) = l(v) $ for any $v in V$.
+== Petrov-Galerkin discretization
+#problem(name: "Abstract weak form")[
+  Let $U, V$ be function spaces. Given a bilinear form $b: U times V -> RR$ and a linear functional $l : V -> RR$,
+ find $u in U$ such that for all $v in V$ $ b(u, v) = l(v) $
 ]
 
-#definition(name: "Petrov-Galerkin discretization")[
-Given discrete subspaces $U_h subset U$ and $V_h subset V$ with $dim U_h = dim V_h$, find $u_h in U_h$ such that $ b(u_h, v_h) = l(v_h) $ for any $v_h in V_h$. 
+
+#method(name: "Petrov-Galerkin discretization")[
+Given discrete subspaces $U_h subset U$ and $V_h subset V$ with $dim U_h = dim V_h$, find $u_h in U_h$ such that for all $v_h in V_h$ $ b(u_h, v_h) = l(v_h) $ 
 
 This method is called _Petrov-Galerkin discretization_ and specially, when $U_h = V_h$, _Galerkin discretization_.
 ]
@@ -130,14 +137,17 @@ A _finite element mesh_ is a partition of $Omega$ into non-overlapping subsets.
 
 In Petrov-Galerkin discretization, $U_h$ and $V_h$ are the span of basis functions which are defined with respect to a finite element mesh. 
 
-For example, let $U_h = "span"{x, x^2}$ and $V_h = "span"{1, x}$. Then $u_h = u_1 x + u_2 x^2$ where $u_1, u_2$ are to be determined. Setting $v_h(x) = 1$ and $v_h(x) = x$ gives two equations for $u_1$ and $u_2$. We then compute $u_1$ and $u_2$ to obtain $u_h(x)$. 
+#example[
+Let $U_h = "span"{x, x^2}$ and $V_h = "span"{1, x}$. Then $u_h = u_1 x + u_2 x^2$  where $u_1, u_2$ are to be determined. Setting $v_h(x) = 1$ and $v_h(x) = x$ gives two equations for $u_1$ and $u_2$. We then compute $u_1$ and $u_2$ to obtain $u_h(x)$. 
+]
+
 
 == Finite element spaces in 1-D
 
 Consider $Omega subset RR$ with finite element mesh $ {(x_0, x_1), (x_1, x_2), dots, (x_(N-1), x_N)} $
 
-#definition(name: "'Hat' basis function")[
-  Define _'hat' basis function_, where for $j = 0, 1, dots, N$, $ phi _j (x_i) = cases(1 quad "if " i = j, 0 quad "if " i != j) $
+#definition(name: ['Hat' basis functions])[
+  Define for $j = 0, 1, dots, N$, $ phi _j (x_i) = cases(1 quad "if " i = j, 0 quad "if " i != j) $
   and $phi_j$ is linearly interpolated elsewhere.
 ]
 
@@ -167,18 +177,20 @@ Then $U_h = "span"{ phi_j } _(j = 0) ^ N$ is the space of continuous piecewise l
   $ integral_0^1  f v_h dx = integral_0^1 u_h' v_h dx $
   for any $v_h in V_h subset V = lebs$.
 
-  With a finite element mesh of $N$ intervals, we define $U_h = "span"{phi_j : j = 1, 2, dots, N}$. Note that $phi_0$ is not included since $u(0) = 0$. Thus $ u_h = sum_(j=1)^N u_j phi_j(x) $ for $u_j in RR$, $j = 1, dots, N$. We define $V_h = "span"{psi_i : i = 1, dots, N}$ and pick $v_h = psi_i$ for $i = 1, dots, N$.
+  With a finite element mesh of $N$ intervals, we define $U_h = "span"{phi_j : j = 1, 2, dots, N}$. 
+  // Note that $phi_0$ is not included since $u(0) = 0$. 
+  Thus $ u_h = sum_(j=1)^N u_j phi_j(x) $ for $u_j in RR$, $j = 1, dots, N$. We define $V_h = "span"{psi_i : i = 1, dots, N}$ and pick $v_h = psi_i$ for $i = 1, dots, N$.
 
   
 
   We now need to find $bd(u) = vec(u_1, dots, u_N) in RR^N$ such that 
   $ sum_(j=1)^N u_j integral_0^1 phi_j'(x) psi_i(x) dx = integral_0^1 f(x) psi_i(x) dx $
 
-  Define $A in RR^(N times N)$ where $ A_(i, j) = integral_0^1 phi_j'(x) psi_i(x) dx = cases(1 &"if " i = j, -1  &"if " i = j + 1, 0 &"otherwise") $ and $bd(b) in RR^n$ where 
+  Define $A in RR^(N times N)$ where $ A_(i, j) = integral_0^1 phi_j'(x) psi_i(x) dx = cases(1 &"if " i = j, -1  &"if " i = j + 1, 0 &"otherwise") $ and $bd(b) in RR^N$ where 
 
   $ b_i = integral_0^1 f(x) psi_i(x) dx = integral_(x_(i-1))^(x_i) f(x) dx $
 
-  Then the problem can be reduced to solving an algebraic system $A bold(u) = bold(b)$, where $ A = mat(
+  Then the problem is reduced to solving an algebraic system $A bold(u) = bold(b)$, where $ A = mat(
   1, 0, 0, ..., 0; 
   -1, 1, 0, ..., 0;
   0, -1, 1, ..., 0;
@@ -200,28 +212,31 @@ $
 
 
 == Hilbert space
-
-#definition(name: "Hilbert space")[
-  A Hilbert space is a complete inner product (linear vector) space.
+#definition(name: [Inner product space])[
+An inner product space is written as $(V, angle.l dot.c, dot.c angle.r _V)$ where $V$ is a linear vector space over $RR$ and $angle.l dot.c, dot.c angle.r _V : V times V -> RR$ is a inner product. The inner product induces a norm $|| dot.c || _V$ on the space. 
 ]
 
-An inner product space is written as $V, (dot.c, dot.c)_V$ where $V$ is a linear vector space and $(dot.c, dot.c)_V$ is a inner product. The inner product induces a norm $|| dot.c || _V$ on the space.
+#definition(name: [Hilbert space])[
+  A _Hilbert space_ is a complete inner product space.
+]
 
-#example(name: $RR^n$)[$(x, y) = sum_i x_i y_i$ and $|| x || _ (RR ^ n) = sqrt(sum_i x_i^2)$.]
 
-#example(name: $L^2(Omega)$)[$(f, g) = integral_Omega f g  dif x$ and $|| f || _(L^2(Omega)) = sqrt(integral_Omega f^2 dif x)$.]
+
+#example(name: $RR^n$)[$angle.l x, y angle.r = sum_i x_i y_i$ and $|| x || _ (RR ^ n) = sqrt(sum_i x_i^2)$.]
+
+#example(name: $L^2(Omega)$)[$angle.l f, g angle.r = integral_Omega f g  dif x$ and $|| f || _(L^2(Omega)) = sqrt(integral_Omega f^2 dif x)$.]
 
 == Well-posedness
 
 #definition(name: "Well-posedness")[ A PDE problem is _well-posed_ if
-- A unique solution exists. 
-- Continuous dependence (small changes in the problem lead to small changes in the solution).]
+- a unique solution exists and
+- it satisfies continuous dependence (small changes in the problem lead to small changes in the solution).]
 
 
-Main idea: if the weak form is well-posed (by L-M Theorem) and the data is regular, then the strong form is also well-posed and the solution to the weak form also solves the strong form.
+Main idea: if the weak form is well-posed (usually by the following Lax-Milgram Theorem) and the data is regular, then the strong form is also well-posed and the solution to the weak form also solves the strong form.
 
 
-#theorem(name: "Lax-Milgram Theorem")[Let $V$ be a Hilbert space, $b(dot.c, dot.c)$ a bi-linear form on $V times V$, and $l(dot.c)$ a linear functional on $V$. Assume: 
+#theorem(name: "Lax-Milgram Theorem")[Let $V$ be a Hilbert space, $b(dot.c, dot.c): V times V -> RR$ a bilinear form, and $l(dot.c) : V -> RR$ a linear functional. Assume: 
 
 $ 
 |b(w, v)| <= c_b || w || _V || v || _V quad & forall w, v in V  quad &"Continuity of " b \
@@ -230,7 +245,7 @@ b(w, w) >= alpha || w || ^2 _V quad & forall w in V &"Coercivity"
 $
 
 for some $c_b, c_l, alpha > 0$.
-Then the following problem has a unique solution (with continuous dependence):
+Then the following problem is well-posed:
 
 - Find $u in V$ such that $b(u, v) = l(v)$ for all $v in V$.]
 
@@ -254,13 +269,12 @@ For all $w in H_0^1(Omega)$, there exists $c_"PF" > 0$ such that $ || w ||_(L^2(
 
 // == Main example
 
-#example(name: "Weak form")[ Given $f in L^2(Omega)$. Find $u in H_1^0(Omega)$ such that 
-$ integral_0^1 u' v' dif x = integral_0 ^1 f v dif x  $
-for any $v in H_0^1(Omega)$.
+#example[#thmref(<weak-form>)[The weak form defined in Problem] is well-posed.]
 
-Here $b(u, v) = integral_0^1 u' v' dif x$ and $l(v) = integral_0 ^1 f v dif x$. This problem is well-posed.]
+#proof[
+  Here $b(u, v) = integral_0^1 u' v' dif x$ and $l(v) = integral_0 ^1 f v dif x$. 
 
-#proof[$V = H_0^1(Omega)$ with inner product $angle.l w, v angle.r_V = integral_0^1 w' v' dif x$ is a Hilbert space with induced norm $ || w || _V = sqrt(integral_Omega (w')^2 dif x) $
+  $V = H_0^1(Omega)$ with inner product $angle.l w, v angle.r_V = integral_0^1 w' v' dif x$ is a Hilbert space with induced norm $ || w || _V = sqrt(integral_Omega (w')^2 dif x) $
 
 #list(
   [Clearly $b(u, v) = integral_0^1 u' v' dif x = angle.l u, v angle.r _ V$ is bi-linear and $l(v) =integral_0 ^1 f v dif = angle.l f, v angle.r _ lebs $ is linear. ],
@@ -282,9 +296,10 @@ By Lax-Milgram Theorem, the problem is well-posed.
 
 == Weak derivative
 
-$ C^oo(Omega) = {phi.alt: Omega -> RR |  phi.alt, phi.alt', phi.alt'', dots "are continuous"} $ 
+#definition[
+  $ C^oo(Omega) &= {phi.alt: Omega -> RR |  phi.alt, phi.alt', phi.alt'', dots "are continuous"} \ C^oo_0(Omega) &= {phi.alt: Omega -> RR | phi.alt, phi.alt', phi.alt'', dots "are continuous and 0 on the boundary"} $
+]
 
-$ C^oo_0(Omega) = {phi.alt: Omega -> RR | phi.alt, phi.alt', phi.alt'', dots "are continuous and 0 on the boundary"} $
 
 #definition(name: "Weak derivative")[
   Let $v in #lebs$. If for all $phi.alt in C_0^oo (Omega)$, there exists $w in #lebs$ such that $ integral_Omega w phi.alt dif x = integral_Omega - v phi.alt' dif x $ where $phi.alt'$ is the classical derivative of $phi.alt$, then we define  the _weak derivative_ of $v$ as $w$.
@@ -393,40 +408,40 @@ $ #lebs &= { v: Omega -> RR | norm(v)_#lebs < oo } \
  H_0^1(Omega) &= {v in H^1(Omega) | v = 0 "on" diff Omega} $
 ]
 
-#definition[
-Given $f$, the _Poisson problem_ is to solve $ -Delta u = f $ in $Omega$, subject to $u = 0$ on $diff Omega$. 
+#problem(name: "Poisson problem, strong form")[
+Given $f in lebs$, find $u in H_0^1(Omega)$ such that $ -Delta u = f $ 
 ]
 
-#definition(name: "Weak form")[
-Given $f$, find $u in H_0^1(Omega)$ such that for all $v in H_0^1(Omega)$, $ integral_Omega nabla u dot.c nabla v dif x = integral_Omega f v dif x $ 
+#problem(name: "Poisson problem, weak form")[
+Given $f in lebs$, find $u in H_0^1(Omega)$ such that for all $v in H_0^1(Omega)$, $ integral_Omega nabla u dot.c nabla v dif x = integral_Omega f v dif x $ 
 ]
 
 
 == Galerkin FEM method for triangulations
 
- 
-#list(
-  [Mesh for $Omega$: triangulation.],
-  [
-    Galerkin FEM ($U_h = V_h$). Define 
-    $ V_h = {w_h: Omega -> RR | w_h "is continuous", w_h = 0 "on" diff Omega, w_h | _T in PP^1(T) quad  forall T "in mesh"} $
-    ($w_h(x, y) = c_0 + c_1 x + c_2 y$ for $(x, y) in T$), which is the set of continuous piecewise-linear functions defined on $Omega$ that vanish on $diff Omega$. Find $u_h in V_h$ such that for all $v_h in V_h$,
-    $ integral_Omega nabla u_h dot.c nabla v_h dif x = integral_Omega f v_h dif x $ 
-  ],
-  [
-    Basis of hat-functions (2-D). 
+#definition[
+  A _2-D mesh_ for $Omega$ is a triangulation of $Omega$.
+]
+
+#definition(name: [2-D hat basis functions])[
   $ phi_j(bold(x)) = cases(
     1 quad bold(x) = bold(x)_j, 
     0 quad bold(x) = bold(x)_i "where" i != j,
     "linearly interpolated elsewhere"
     ) $
-  ],
-  [
-    $V_h = "span"{phi_j}_(j=1)^N$ and $u_h = sum_(j=1)^N u_j phi_j$ where $u_j$ are coeffients. Pick $v_h = phi_i$ for all $i = 1, dots, N$ to obtain $A bold(u) = bold(b)$, where 
-    $ A_(i j) = integral_Omega nabla phi_j dot.c nabla phi_i dif x $ and 
-    $ b_i = integral_Omega f phi_i dif x $
-  ]
-)
+]
+#method(name: [Galerkin FEM])[
+    Define $U_h = V_h = "span"{phi_j}_(j=1)^N$. Then 
+    $ V_h = {w_h: Omega -> RR | w_h "is continuous", w_h = 0 "on" diff Omega, lr(w_h |) _T in PP^1(T) quad  forall T "in mesh"} $
+    where $lr(w_h |) _T in PP^1(T)$ is equivalent to $w_h(x, y) = c_0 + c_1 x + c_2 y$ for $(x, y) in T$. In other words, $V_h$ the set of continuous piecewise-linear functions defined on $Omega$ that vanish on $diff Omega$. 
+    
+    Now, find $u_h in V_h$ such that for all $v_h in V_h$,
+    $ integral_Omega nabla u_h dot.c nabla v_h dif x = integral_Omega f v_h dif x $ 
+
+     $u_h = sum_(j=1)^N u_j phi_j$ where $u_j$ are coeffients. Pick $v_h = phi_i$ for all $i = 1, dots, N$ to obtain $A bold(u) = bold(b)$, where 
+    $ A_(i j) = integral_Omega nabla phi_j dot.c nabla phi_i dif x quad "and" quad b_i = integral_Omega f phi_i dif x $
+]
+
 
 #example[
   $ u_t - u_(x x) = f $ for all $(t, x) in (0, T) times Omega$, where $Omega  = (0, 1)$. 
@@ -481,6 +496,8 @@ Given $f$, find $u in H_0^1(Omega)$ such that for all $v in H_0^1(Omega)$, $ int
   $ (norm(A bd(x))_2 / norm(bd x)_2) ^2  = (10/9 (a² + b²) + 4/3 a b) / (a² + b²) = 10/9 + 2/3 (2a b) / (a² + b²) <= 10/9 + 2/3 = 16 / 9 $
   The maximum is obtained when $a = b$. Thus 
   $ norm(A)_2 = 4/3 $
+
+  Although in practice, we use a later theorem to find $norm(A)_2 = sqrt(rho(A^t A))$.
 ]
 
 #theorem[ For a vector norm and its induced matrix norm, 
@@ -577,8 +594,8 @@ Given $A in RR ^ (n times n), bold(b) in RR^n$. Assume there exists $bold(x) in 
 
 
 #theorem(name: "Perturbation Theorem")[
-  Let $A bd(x) = bd(b)$ and $(A + delta A) hat(bd(x)) = bd(b) + delta bd(b)$, where $delta A$ and $delta bd(b)$ are perturbations. Assume $norm(delta A) < 1/norm(A^(-1))$. Then there exists $C>0$ such that
-  $ norm(bd(x) - hat(bd(x))) / norm(bd(x)) <= C (norm(delta bd(b)) / norm(bd(b)) + norm(delta A) / norm(A) ) $
+  Let $A bd(x) = bd(b)$ and $(A + delta A) hat(bd(x)) = bd(b) + delta bd(b)$, where $delta A$ and $delta bd(b)$ are perturbations. Assume $norm(delta A) < 1/norm(A^(-1))$. Then 
+  $ norm(bd(x) - hat(bd(x))) / norm(bd(x)) <= kappa(A) / (1 - kappa(A) norm(delta A) / norm(A))  (norm(delta bd(b)) / norm(bd(b)) + norm(delta A) / norm(A) ) $
 ]
 
 #proof[
@@ -601,14 +618,13 @@ Given $A in RR ^ (n times n), bold(b) in RR^n$. Assume there exists $bold(x) in 
   $
     norm(bd(x) - hat(bd(x))) / norm(bd(x)) &<= kappa(A) / (1 - kappa(A) norm(delta A) / norm(A)) (norm(delta bd(b)) / norm(bd(b)) + norm(delta A) / norm(A))
   $
-  This proves the result.
 ]
 
 #pagebreak()
 = Linear Systems: Advanced Methods II
 
 #definition[
-  $Q in RR^(n times n)$ is said to be an _orthognal_ matrix when $Q^t Q = I$.
+  $Q in RR^(n times n)$ is said to be an _orthognal_ or _orthonormal_ matrix when $Q^t Q = I$.
 ]
 
 #theorem(name: "QR factorisation")[
@@ -616,8 +632,10 @@ Given $A in RR ^ (n times n), bold(b) in RR^n$. Assume there exists $bold(x) in 
 ]
 
 #corollary[
-  If $A bd(x) = bd(b)$, then $R bd(x) = Q^t bd(b)$, which can be solved using backwards substitution.
+  If $A bd(x) = bd(b)$, then $R bd(x) = Q^t bd(b)$.
 ]
+
+We can easily solve  $R bd(x) = Q^t bd(b)$  using backwards substitution.
 
 #example(name: "Over-determined systems")[
   Consider $A bd(x) = bd(b)$, where $A in RR^(m times n), bd(x) = RR^n, bd(b) in RR^m$ and $m > n$. Then there is generally no solution to $bd(x)$. We would then like to find the least-squares solution, which is to find $bd(x) = RR^n$ that minimises $1/2 norm(bd(b) - A bd(x))^2_2$. Differentiating using matrix calculus gives $ A^t A bd(x) = A^t bd(b) $
@@ -655,7 +673,7 @@ The classical implementation given below is not stable.
   end\
 ]
 
-To find an orthognal (instead of orthonormal) basis for $"span"{bd(a)_1, dots, bd(a)_n}$, the following simplified process can be used. 
+To find an orthognal (instead of orthonormal) basis $bd(q)_1, dots, bd(q)_n$ for $"span"{bd(a)_1, dots, bd(a)_n}$ (such that for all $i != j$, $angle.l bd(q)_i, bd(q)_j angle.r = 0$), the following simplified process can be used. 
 
 #method(name: "Gram-Schmidt algorithm")[
 Let $bd(a)_1, dots, bd(a)_n$ be the $n$ columns of a given matrix $A$. Define $bd(q)_1 = bd(a)_1 $, and for all $2 <= j <= n$, define
@@ -668,7 +686,10 @@ $
 
 #pagebreak()
 = Linear Systems: Advanced Methods III
-Problem: $A bd(x) = bd(b)$ where $A in RR^(n times n)$ and $A$ is SPD (symmetric positive definite).
+#problem[
+Given $A in RR^(n times n)$ and $bd(b) in RR^n$, solve for $bd(x)$ in $A bd(x) = bd(b)$, where $A$ is symmetric positive definite (SPD for short).
+]
+
 
 == Stationary iterative methods
 
@@ -711,7 +732,7 @@ where $bd(r)_k = bd(b) - A bd(x)_k$ and  $ alpha_k = (bd(r)^t_k bd(r)_k) / (bd(r
   $
 ]
 
-== Non-stationary methods: The CG method
+== Non-stationary methods: The conjugate gradient method
 
 #theorem[
   Let $A$ be a symmetric positive definite matrix. Then $ angle.l bd(u), bd(v) angle.r_A = bd(u)^t A bd(v) $ defines an inner product. <matrix-ip>
@@ -725,7 +746,7 @@ where $bd(r)_k = bd(b) - A bd(x)_k$ and  $ alpha_k = (bd(r)^t_k bd(r)_k) / (bd(r
   Two vectors $bd(u)$ and $bd(v)$ are _conjugate_ if and only if they are orthogonal with respect to the inner product defined in #thmref(<matrix-ip>)[Theorem], i.e. $ angle.l bd(u), bd(v) angle.r_A = bd(u)^t A bd(v) = 0 $
 ]
 
-#method(name: "CG method")[Iterate from an initial guess $bd(x)_0$ with $ bd(x)_(k+1) = bd(x)_k + alpha_k bd(p)_k $ where we define $bd(p)_0 &= bd(r)_0 = bd(b) - A bd(x)_0$ and $ 
+#method(name: "Conjugate gradient method")[Iterate from an initial guess $bd(x)_0$ with $ bd(x)_(k+1) = bd(x)_k + alpha_k bd(p)_k $ where we define $bd(p)_0 &= bd(r)_0 = bd(b) - A bd(x)_0$ and $ 
 alpha_j &= (bd(p)_j^t bd(r)_0) / (bd(p)_j^t A bd(p)_j)  \
 bd(r)_k &= bd(b) - A bd(x)_k \
  bd(p)_k &= bd(r)_k - sum_(i=0)^(k-1) c_(k i) bd(p)_i quad "with" quad
@@ -734,7 +755,7 @@ bd(r)_k &= bd(b) - A bd(x)_k \
 ]
 
 #theorem[
-  In the CG method, ${bd(p)_i}$ are conjugate directions, i.e. for all $i != j$, $ bd(p)_j^t A bd(p)_i = 0 $  <cg-conjugate>
+  In the conjugate gradient method, ${bd(p)_i}$ are conjugate directions, i.e. for all $i != j$, $ bd(p)_j^t A bd(p)_i = 0 $  <cg-conjugate>
 ]
 
 #proof[
@@ -742,7 +763,7 @@ bd(r)_k &= bd(b) - A bd(x)_k \
   ${bd(p)_0, dots, bd(p)_k}$ are obtained exactly by applying #thmref(<gs-simp>)[Method] to ${bd(r)_0, dots, bd(r)_k}$ with respect to the inner product defined in #thmref(<matrix-ip>)[Theorem].
 ]
 
-#theorem[In the CG method, for all $0 <= j <= k - 1$,
+#theorem[In the conjugate gradient method, for all $0 <= j <= k - 1$,
 $ bd(p)_j dot.c bd(r)_k = bd(p)_j^t (bd(b) -  A bd(x)_k) = 0 $ 
 ]
 
@@ -773,14 +794,14 @@ $ bd(p)_j dot.c bd(r)_k = bd(p)_j^t (bd(b) -  A bd(x)_k) = 0 $
 
 
 // === Minimisation of $A$-norm of the error
-== Error analysis of the CG method
+== Error analysis of the conjugate gradient method
 
 #definition(name: ["Krylov" subspace])[
   $ cal(K)_k = "span"{bd(p)_0, dots, bd(p)_(k-1)} = "span"{bd(r)_0, dots, bd(r)_(k-1)} $
   
 ]
 #theorem[
-  Let $bd(x)_k$ be given by the CG method applied to $A bd(x) =bd(b)$ with $bd(x)_0  = bd(0)$. Assume at the $k$-th step  the method is not yet converged, namely $bd(r)_(k-1) != bd(0)$, then $bd(x)_k$ is the unique minimiser in $cal(K)_k$ of $norm(bd(x) - bd(x)_k) _ A$. 
+  Let $bd(x)_k$ be given by the conjugate gradient method applied to $A bd(x) =bd(b)$ with $bd(x)_0  = bd(0)$. Assume at the $k$-th step  the method is not yet converged, namely $bd(r)_(k-1) != bd(0)$, then $bd(x)_k$ is the unique minimiser of $bd(y) |-> norm(bd(x) - bd(y)) _ A$ in $cal(K)_k$ . 
 ]
 
 #proof[
@@ -808,7 +829,7 @@ $ bd(p)_j dot.c bd(r)_k = bd(p)_j^t (bd(b) -  A bd(x)_k) = 0 $
 ]
 
 #corollary[
-  The CG method converges in at most $n$ steps. 
+  The conjugate gradient method converges in at most $n$ steps. 
 ]
 #proof[
   $dim cal(K)_n = n$ and therefore $cal(K)_n = RR^n$. Thus $bd(x)_n = bd(x)$.
@@ -823,16 +844,27 @@ $ bd(p)_j dot.c bd(r)_k = bd(p)_j^t (bd(b) -  A bd(x)_k) = 0 $
 
 = Low-Rank Approximation I
 
-== The power method, and Rayleigh quotient
+== The power method and Rayleigh quotient
 
-Problem: Given $A in RR^(m times m)$ and $A = A^t$. Find its dominant eigenvalue-eigenvector pair $bd(v), lambda$, where $ A bd(v) = lambda bd(v) $ for the largest $abs(lambda)$.
+#problem[
+  Given $A in RR^(m times m)$ and $A = A^t$. Find its dominant eigenvalue-eigenvector pair $bd(v), lambda$, where $ A bd(v) = lambda bd(v) $ for the largest $abs(lambda)$.
+]
 
-Power method. Given $bd(v)^((0))$ where $norm(bd(v)^((0))) = 1$. For $k = 1, 2, dots$, let $ bd(w) &= A bd(v)^((k-1)) \ bd(v)^((k)) &= (bd(w))/ (norm(bd(w))) \ lambda^((k)) &= (bd(v)^((k)))^t A bd(v)^((k)) $
+#method(name: [Power method])[
+  Given $bd(v)^((0))$ where $norm(bd(v)^((0))) = 1$. For $k = 1, 2, dots$, let $ bd(w) &= A bd(v)^((k-1)) \ bd(v)^((k)) &= (bd(w))/ (norm(bd(w))) \ lambda^((k)) &= (bd(v)^((k)))^t A bd(v)^((k)) $
+]
 
-Suppose $|lambda_1| > |lambda_2| >= dots >= |lambda_m| >= 0 $ and let $
+#theorem[In the power method, 
+  $ bd(v)^((k)) -> plus.minus bd(q)_1 quad "and" quad lambda^((k)) ->  lambda_1  quad "as " k -> oo $
+]
+
+#proof[ 
+$A$ is real symmetric, so all eigenvalues of $A$ are real and $A$ has a set of orthonormal eigenvectors which span $RR^(m)$ by #thmref(<symmetric-eigen>)[Lemma]. 
+
+For the eigenvalues of $A$, suppose $|lambda_1| > |lambda_2| >= dots >= |lambda_m| >= 0 $ and let $
 bd(v)^((0)) = sum_(i=1)^m a_i bd(q)_i
 $
-Then $
+Then by the recursive relation, $
 bd(v)^((k)) &= c_k A^k bd(v)^((0)) \
 &= c_k ( sum_(i=1)^m a_i A^k bd(q)_i) \
 &= c_k ( sum_(i=1)^m a_i lambda_i^k bd(q)_i) \
@@ -840,12 +872,13 @@ bd(v)^((k)) &= c_k A^k bd(v)^((0)) \
 $
 where $c_k$ are normalising coefficients.
 
-Since $lambda_i < lambda_1$ for all $i = 2, dots, m$, $ (lambda_i / lambda_1)^k -> 0 $ as $k -> oo$. Thus $ bd(v)^((k)) -> c_k lambda_1^k a_1 bd(q)_1 $ as $k -> oo$. But $norm(bd(v)^((k))) = norm(bd(q)_1) = 1$, thus 
-$ bd(v)^((k)) -> plus.minus bd(q)_1 $ as $k -> oo$, where $c_k lambda_1^k a_1 bd(q)_1 -> plus.minus bd(q)_1$ as $k -> oo$.
+Since $|lambda_i| < |lambda_1|$, for all $i = 2, dots, m$, $ (lambda_i / lambda_1)^k -> 0 $ Thus $ bd(v)^((k)) -> c_k lambda_1^k a_1 bd(q)_1 $ But $norm(bd(v)^((k))) = norm(bd(q)_1) = 1$ thanks to the normalising effect of $c_k$, thus 
+$bd(v)^((k)) -> plus.minus bd(q)_1 $. Then $ lambda^((k)) = (bd(v)^((k)))^t A bd(v)^((k)) -> bd(q)_1^t A bd(q)_1 = lambda_1 bd(q)_1^t bd(q)_1 = lambda_1 $
+]
+// #example[
+//   Power Rank: the dominant eigenvalue is $1$.
+// ]
 
-Also $ lambda^((k)) -> bd(q)_1^t A bd(q)_1 = lambda_1 bd(q)_1^t bd(q)_1 = lambda_1 $
-
-Power Rank: the dominant eigenvalue is $1$.
 
 == The power method: Convergence analysis
 
@@ -868,7 +901,7 @@ Power Rank: the dominant eigenvalue is $1$.
     |lambda^((k)) - lambda_1|  &= O(abs((lambda_2) / (lambda_1))^(2k))
 
   $
-  as $k -> oo$. They are both linear convergence.
+  as $k -> oo$. They both convergence linearly.
 ]
 
  #proof[
@@ -888,13 +921,17 @@ Power Rank: the dominant eigenvalue is $1$.
 
 == Inverse iteration
 
-Motivation. Let $lambda$ and $bd(v)$ be a pair of eigenvalue and eigenvector of matrix $A$, then $ A bd(v) = lambda bd(v) $ Then sice $ lambda^(-1) bd(v) = A^(-1) bd(v) $ we see that $lambda^(-1)$ is an eigenvalue of $A^(-1)$ for the same eigenvector $bd(v)$. To find the eigenvalue with the smallest absolute value of $A$, we only need to find the one with the largest absolute value for $A^(-1)$. Also since for $mu != lambda$,
+ 
+Let $lambda$ and $bd(v)$ be a pair of eigenvalue and eigenvector of matrix $A$, then $ A bd(v) = lambda bd(v) $ Then since $ lambda^(-1) bd(v) = A^(-1) bd(v) $ we see that $lambda^(-1)$ is an eigenvalue of $A^(-1)$ for the same eigenvector $bd(v)$. To find the eigenvalue with the smallest absolute value of $A$, we only need to find the one with the largest absolute value for $A^(-1)$. In general, since for $mu != lambda$,
 $ (A - mu I) bd(v) &= (lambda - mu) bd(v) \
   1/(lambda - mu) bd(v) &= (A - mu I)^(-1) bd(v)
-$
-To find the eigenvalue of $A$ closest to $mu$, we only need to find the eigenvalue with the largest absolute value of $B = (A - mu I)^(-1)$.
+$  we have the following.
 
-We solve a linear system instead of actually computing the inverse matrix.
+#method(name: "Inverse iteration")[Suppose $mu$ is not an eigenvalue of $A$. To find the eigenvalue $lambda$ of $A$ which is the closest to $mu$, we only need to find the largest-magnitude eigenvalue $lambda'$ of $B = (A - mu I)^(-1)$ and $ lambda = mu + 1 / (lambda') $ 
+
+In practice, we solve a linear system at each step instead of actually computing the inverse matrix of $A - mu I$.]
+
+
 
 #theorem[
   Suppose $lambda_J$ and $lambda_K$ are the closest and second closest eigenvalue of $A$ to $mu$ and $bd(q)_J^t bd(v)^((0)) != 0$. Then the inverse iteration method converges, with 
@@ -906,39 +943,49 @@ We solve a linear system instead of actually computing the inverse matrix.
 ]
 
 == Simultaneous iteration
-
-Unnormalised version. Suppose $A in RR^(m times m)$, where $m >= n$. Take $ V^((0)) = mat( bd(v)_1^((0)), dots, bd(v)_n^((0)); ) $ where $bd(v)_i in RR^m$. For $k = 1, 2, dots$, $ V^((k)) = A V^((k-1)) = mat(A bd(v)_1^((k-1)), dots, A bd(v)_n^((k-1))  ; ) $
+#method(name: "Simultaneous iteration, unnormalised version")[
+  Suppose $A in RR^(m times m)$, where $m >= n$. Take $ V^((0)) = mat( bd(v)_1^((0)), dots, bd(v)_n^((0)); ) $ where $bd(v)_i in RR^m$. For $k = 1, 2, dots$, $ V^((k)) = A V^((k-1)) = mat(A bd(v)_1^((k-1)), dots, A bd(v)_n^((k-1))  ; ) $
 
 With QR factorisation of $V^((k))$, we expect that $Q^((k)) -> mat(bd(q)_1, dots, bd(q)_n; )$ where $ Q^((k)) R^((k)) = V^((k)) $ and $ Q^((k)) in RR^(m times n)$.
-
-Normalised version. Pick $Q^((0)) in RR^(m times n)$ with orthonormal columns. For $k = 1, 2, dots$, 
-$ Z&= A Q^((k-1)) \ Q^((k)) R^((k)) &= Z $ (reduced QR factorisation of $Z$)
-
+]
+#method(name: "Simultaneous iteration, normalised version")[
+Pick $Q^((0)) in RR^(m times n)$ with orthonormal columns. For $k = 1, 2, dots$, 
+$ Z&= A Q^((k-1)) \ Q^((k)) R^((k)) &= Z $ which is the reduced QR factorisation of $Z$.
+]
 #theorem[
   Suppose $|lambda_1| > |lambda_2| > dots > |lambda_n| > |lambda_(n+1)| >= dots >= |lambda_m|$ and all leading principal submatrices of $Q^T V^((0))$ are nonsingular with $Q=mat(bd(q)_1, dots, bd(q)_n; )$. Then 
   $ Q^((k)) -> Q $ linearly with $ norm(bd(q)_j^((k)) - (plus.minus bd(q)_j)) = O(alpha^k) $ where $alpha = max_(1<=k<=n) (lambda_(k+1)) / (lambda_k)$.
 ]
 
-= Low-Rank Approximation II: The SVD, and Matrix Approximation
+#pagebreak()
 
-#theorem(name: "Matrix Diagonalisation")[
+= Low-Rank Approximation II
+
+== Single value decomposition
+
+#theorem(name: "Matrix diagonalisation")[
 Suppose $A in RR^(n times n)$ with $n$ linearly independent eigenvalues. Then $ A = X Lambda X^(-1) $ where each column $bd(x)_i$ of $X$ is an eigenvector of $A$ and $lambda_i$ is the corresponding eigenvalue.
 ]
 
-#definition(name: "Orthogonal Matrices")[
+#definition(name: "Orthogonal matrices")[
   A matrix $Q in RR^(n times n)$ is _orthogonal_ if $ Q^t = Q^(-1) $
 ]
 
 
-#theorem(name: "(Real) Spectral Theorem")[
+#theorem(name: "Spectral theorem")[
 Suppose $A in RR^(n times n)$ is symmetric, then $ A = Q Lambda Q^t $ where $lambda_i in RR$ and $Q$ is an orthogonal matrix.
 ]
+#definition[
+  The _column (row) space_ of a matrix is the vector space spanned by its columns (rows).
+]
+#definition[
+  The _rank_ of a matrix is the dimension of its column space (or equally, its row space).
+]
 
-The rank of a matrix is the dimension of its column space or its row space, where the column (row) space is the vector space generated by its columns (rows).
 
-We would like to decompose a matrix into two sets of vectors.
 
-Key: $ A bd(v)_i = sigma_i bd(u)_i $ where $bd(v)_i$ is the $i$-th right singular vector, $sigma_i$ is the $i$-th singular value, and $bd(u)_i$ is the $i$-th left singular vector. Further, $A^t A$ and $A A^t$ are symmetric matrices which satisfy
+We would like to decompose a matrix into two sets of vectors $bd(u)_i$ and $bd(v)_i$ satisfying  
+$ A bd(v)_i = sigma_i bd(u)_i $ where $bd(v)_i$ is the $i$-th right singular vector, $sigma_i$ is the $i$-th singular value, and $bd(u)_i$ is the $i$-th left singular vector. Further, $A^t A$ and $A A^t$ are symmetric matrices which satisfy
 
 $ A^t A bd(u)_i  &= sigma_i^2 bd(u)_i \
  A A^t bd(v)_i  &= sigma_i^2 bd(v)_i $
@@ -946,21 +993,20 @@ $ A^t A bd(u)_i  &= sigma_i^2 bd(u)_i \
 We then write $ A = U Sigma V^t $ where $bd(u)_i$ is the $i$-th column of $U$, $bd(v)_i$ is the $i$-th column of $V$, and $sigma_i$ is the $i$-th entry of the diagonal matrix $Sigma$. Equivalently, $ A = sum_(i=1)^r sigma_i bd(u)_i bd(v)_i^t $
 where $r <= min{m, n}$ is the rank of $A$.
 
-#definition(name: "Unitary Matrices")[
+#definition(name: "Unitary matrices")[
   A matrix $U in RR^(m times n)$ is _unitary_ if $ U^t U = I_(n times n) $
 ]
 
 We see that unitary matrices are a generalisation of orthogonal matrices. 
 
-#definition(name: "Singluar Value Decomposition")[
-Consider matrix $A in RR^(m times n)$. Then a _singular value decomposition_ of $A$ is
+#definition(name: "Singluar value decomposition")[
+Consider matrix $A in RR^(m times n)$ (not necessarily full rank). Then a _singular value decomposition_ of $A$ is
 $ A = U Sigma V^t $
 where
  $U in RR^(m times n)$ is a unitary matrix, $Sigma in RR^(n times n)$ is a diagonal matrix 
 with non-negative entries, and $V in RR^(n times n)$  is an orthogonal matrix.
 ]
 
-Note that $A$ is not necessarily full rank.
 
 #theorem[
   An SVD always exists with $sigma_i$ unique, which are called the _singular values_ of $A$ and are the non-negative square roots of the eigenvalues of $A^t A$.
@@ -977,16 +1023,26 @@ Since $ A V &= U Sigma \ A^t U &= V Sigma $
 
 we have that 
 $
-mat(O, A^t; A, O) mat(V, V; U, -U) = mat(V, V; U, -U) mat(Sigma, O; O, -Sigma)
-$ or $ H Q = Q Lambda $
+underbrace(mat(O, A^t; A, O), H) underbrace(mat(V, V; U, -U), Q) = underbrace(mat(V, V; U, -U), Q) underbrace(mat(Sigma, O; O, -Sigma), Lambda)
+$
 
 Hence by computing the eigenvalues and eigenvectors of $H$ we can get the SVD of $A$. 
 
-#definition(name: "Low Rank Approximation")[
-  If $sigma_1 >= sigma_2 >= dots >= sigma_r >= 0$, then the _best rank-$k$ approximation_ of $A$ is 
+== Low rank approximation
+
+#definition(name: "Low rank approximation")[
+  Let $sigma_1 >= sigma_2 >= dots >= sigma_r >= 0$ be the singular values of $A$, then for $1 <= k <= r$, the _best rank-$k$ approximation_ of $A$ is 
   $ A_k = sum_(j=1)^k sigma_j bd(u)_j bd(v)_j^t $
 
-  for any $1 <= k <= r$. 
+  
+]
+
+#lemma[Let $sigma_1$ be the largest singular value of $A$, then
+  $ norm(A)_2 = sigma_1 $
+  <singular-norm>
+]
+#proof[
+  This directly follows from $ norm(A)_2 = sqrt(rho(A^t A))$ and how we compute $sigma_1$.
 ]
 
 #theorem(name: "The Eckart-Young Theorem")[
@@ -996,8 +1052,8 @@ Hence by computing the eigenvalues and eigenvectors of $H$ we can get the SVD of
   Further, $ norm(A - A_k)_2 = sigma_(k+1) $ and $ norm(A - A_k)_F = sqrt(sum_(i=k+1)^n sigma_i^2) $
 ]
 
-#proof[
-  First we show that $norm(A - A_k)_2 = sigma_(k+1)$. (TODO: See end of lecture notes 8).
+#proof[We only prove for the $2$-norm. 
+  It is easy to see that $norm(A - A_k)_2 = sigma_(k+1)$ by #thmref(<singular-norm>)[Lemma].
 
   Assume that there exists $B in RR^(m times n)$ with $"rank" B <= k$ such that $ norm(A-B)_2 < norm(A - A_k)_2 = sigma_(k+1) $
 
