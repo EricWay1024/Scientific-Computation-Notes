@@ -2,6 +2,13 @@
 
 Adapted from the lecture slides.
 
+## Compile to PDF
+
+Install `typst` as described [here](https://github.com/typst/typst). Then
+```bash
+typst watch main.typ main.pdf
+```
+
 ## Based on
 - [`typst`](https://typst.app/docs/)
 - [`typst-algorithms`](https://github.com/platformer/typst-algorithms) 
