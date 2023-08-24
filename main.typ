@@ -68,12 +68,14 @@
 // Take a look at the file `template.typ` in the file panel
 // to customize this template and discover how it works.
 #show: project.with(
-  title: "Scientific Computation and Numerical Analysis",
+  title: "Notes for MATH3036 Scientific Computation and Numerical Analysis",
   authors: (
     "Yuhang Wei",
   ),
   date: "March 23, 2023",
 )
+
+This document serves as an unofficial companion for the module MATH3036, _Scientific Computation and Numerical Analysis_, at the University of Nottingham. The material presented here is based on the available lecture slides from the academic year 2022-23. It is important to note that there might be slight variations in notation and the order of topics covered. As the course evolves, the content itself may also undergo changes at the instructor's discretion in subsequent academic years. Please be aware that this current version is provided with the caveat that it may contain typos, errors or inaccuracies.  Your valuable contributions to enhance this resource are greatly appreciated. Feel free to get in touch by email at #link("mailto:yuhangwei@fastmail.com")[#underline[yuhangwei\@fastmail.com]] or by submitting an issue or pull request on #link("https://github.com/EricWay1024/Scientific-Computation-Notes")[#underline[GitHub]].
 
 #outline(indent: true)
 
