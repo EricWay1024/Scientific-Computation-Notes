@@ -70,7 +70,8 @@
 #show: project.with(
   title: "Notes for MATH3036 Scientific Computation and Numerical Analysis",
   authors: (
-    "Yuhang Wei",
+    "Notes by Yuhang Wei",
+    "Lectures by Kristoffer van der Zee"
   ),
   date: "March 23, 2023",
 )
